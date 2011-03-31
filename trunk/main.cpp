@@ -1,10 +1,31 @@
 
+#define CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#include "inc.h"
 #include "string.h"
 
-template <typename TSIZE> atmega::_stringnode<TSIZE> atmega::_stringnode<TSIZE>::nullnode;
+#include <iostream>
+
+USING_CPP();
+
+using namespace atmega;
+
+void testString(){
+	string x = "Hello,";
+	string y = x + " world";
+
+	std::cout<<x.str()<<std::endl;
+	std::cout<<y.str()<<std::endl;
+}
 
 void main(){
 
-	atmega::string<uint16_t> x = "Hello There";
-	atmega::string<uint16_t> y;
+	testString();
+
+	_CrtDumpMemoryLeaks();
+
+	system("pause");
+	
 }
