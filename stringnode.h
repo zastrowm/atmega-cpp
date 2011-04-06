@@ -9,7 +9,24 @@ namespace atmega{
 	public:
 		char *str;
 		uint8_t refCount;
+		bool isLiteral;
 		TSIZE length;
+
+		/**
+		*	Create a new string node from a literal string
+		*
+		*	@param astr the literal string to construct a stringnode from
+		*	@return the newly created string
+		*/
+		static _stringnode* create(char *astr){
+			_stringnode *node = (_stringnode*) malloc(sizeof(_stringnode));
+			node->length = strlen(astr);
+			node->refCount = 0;
+			node->isLiteral = true;
+			node->str = astr;
+
+			return node;
+		}
 
 		/**
 		*	Create a new string node from an existing string
@@ -23,6 +40,7 @@ namespace atmega{
 			_stringnode *node = (_stringnode*) malloc(sizeof(_stringnode));
 			node->length = size;
 			node->refCount = 0;
+			node->isLiteral = false;
 			node->str = (char*)malloc(size + 1);
 			memcpy(node->str,astr,size);
 			node->str[size] = '\0';
@@ -40,12 +58,10 @@ namespace atmega{
 			_stringnode *node = (_stringnode*) malloc(sizeof(_stringnode));
 			node->length = size;
 			node->refCount = 0;
+			node->isLiteral = false;
 			node->str = (char*)malloc(size + 1);
 			return node;
 		}
-
-
-
 
 		/**
 		*	Destroy an instance of a string node, freeing all memory
@@ -55,7 +71,8 @@ namespace atmega{
 		*/
 		void decreate(){
 			if (this != &nullnode){
-				free(this->str);
+				if (!this->isLiteral)
+					free(this->str);
 				free(this);
 			}
 		}

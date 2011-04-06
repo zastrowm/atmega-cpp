@@ -1,8 +1,9 @@
 
 #pragma once
 
+#include "inc.h"
 #include <stdint.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "stringnode.h"
@@ -52,7 +53,7 @@ namespace atmega{
 		 *	@param astr the string to set this string equal to
 		 */
 		BasicString(char *astr){
-			pNode = _stringnode<TSIZE>::create(astr,strlen(astr));
+			pNode = _stringnode<TSIZE>::create(astr);
 			pNode->refCount++;
 		}
 
@@ -189,6 +190,15 @@ namespace atmega{
 		}
 
 		/**
+		 *	Check if this string is empty
+		 *
+		 *	@return true if the string is empty, false otherwise
+		 */
+		bool isEmpty(){
+			return length() == 0;
+		}
+
+		/**
 		 *	Append another string onto the end of this one
 		 *
 		 *	@param rhs the string we're appending onto this string
@@ -213,13 +223,13 @@ namespace atmega{
 		 *	@param rhs the string we're appending onto this string
 		 *	@return the new string
 		 */
-		BasicString operator +(const char* &rhs){
+		BasicString operator +(const char* rhs){
 			TSIZE l = length(), r = strlen(rhs), lr = r + l;
-			_stringnode<TSIZE> *n = _stringnode<TSIZE>::create(rl + 1);
+			_stringnode<TSIZE> *n = _stringnode<TSIZE>::create(lr + 1);
 			memcpy(n->str,this->pNode->str,l);
 			memcpy(n->str + l, rhs,r);
-			rhs.pNode->str[rl] = '\0';
-			BasicString(&(*n)) ret;
+			this->Node->str[lr] = '\0';
+			BasicString ret(&(*n));
 			return ret;
 		}
 
