@@ -5,12 +5,12 @@
  *  Author: zastrowm
  */ 
 
-#include "string.h"
-#include "StaticMap.h"
-#include "StringBuffer.h"
-#include "StringWriter.h"
-#include "Servo.h"
-#include "serial.h"
+#include "stdlib/string.h"
+#include "stdlib/StaticMap.h"
+#include "stdlib/StringBuffer.h"
+#include "stdlib/StringWriter.h"
+#include "atmega/Servo.h"
+#include "atmega/serial.h"
 
 USING_CPP();
 

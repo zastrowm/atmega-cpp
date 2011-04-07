@@ -6,7 +6,7 @@
  */ 
 
 #include "string.h"
-#include "StringBuffer.h"
+#include "../stdlib/StringBuffer.h"
 
 #ifndef SERIAL_H_
 #define SERIAL_H_
