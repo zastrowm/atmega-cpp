@@ -52,7 +52,7 @@ namespace atmega{
 		 *
 		 *	@param astr the string to set this string equal to
 		 */
-		BasicString(const char *astr){
+		BasicString(char *astr){
 			pNode = _stringnode<TSIZE>::create(astr);
 			pNode->refCount++;
 		}
