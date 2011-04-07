@@ -5,8 +5,10 @@
  *  Author: zastrowm
  */ 
 
-#include "string.h"
+#include "atmega.h"
+#include "../stdlib/string.h"
 #include "../stdlib/StringBuffer.h"
+#include "../stdlib/StringWriter.h"
 
 #ifndef SERIAL_H_
 #define SERIAL_H_
@@ -17,10 +19,10 @@
 
 namespace atmega{
 	
-	class serial{
+	class Serial : public StringWriter<Serial>{
 	
 	public:
-		static void init(uint8_t val = UBRR_VAL){
+		Serial(uint8_t val = UBRR_VAL){
 			//set the rate to what it needs to be
 			UBRRL = val;
 			UBRRH = 0;
@@ -28,29 +30,40 @@ namespace atmega{
 			UCSRB = (1<<TXEN)|(1<<RXEN);
 		}
 
-		static void putChar(char what){
+		void put(char what){
 			while(!(UCSRA&(1<<UDRE)));
 				UDR=what;
 		}
 	
-		static char getChar(){
+		char getChar(){
 			while(!(UCSRA&(1<<RXC)));
-			return UDR;
+			uint8_t data = UDR;
+			put(data);
+			return data;
 		}
 	
-		static void putString(string s){
+		void put(string s){
 			int max = s.length();
 			for (int i = 0; i < max; i++)
-				serial::putChar(s.at(i));
+				put(s.at(i));
+		}
+		
+		void put(char* s){
+			string str(s,strlen(s));
+			put(str);
 		}
 	
-		static string getString(){
+		string getString(){
 			StringBuffer<128> buffer;
 			char letter;
 			do{
-				letter = serial::getChar();	
-				if (letter == '\r' || letter == '\n' || letter == '\0')
+				letter = getChar();	
+				if (letter == '\r' || letter == '\n' || letter == '\0'){
+					put('\r');
+					put('\n');
 					break;
+				} else if (letter == '\b')
+					buffer.back();
 				else
 					buffer.put(letter);
 			} while (true);

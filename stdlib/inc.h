@@ -1,10 +1,21 @@
 
+#pragma once
+
+namespace atmega{
+	struct _endl{};
+	struct _tab{};
+	struct _commit{};
+}
+
 
 #define USING_CPP() template <typename TSIZE> atmega::_stringnode<TSIZE> atmega::_stringnode<TSIZE>::nullnode;	\
 					template <typename TSIZE> atmega::BasicString<TSIZE> atmega::BasicString<TSIZE>::empty;		\
 					void * operator new(size_t size) {return malloc(size);}										\
-					void operator delete(void * ptr) { free(ptr); } 											
-											
+					void operator delete(void * ptr) { free(ptr); } 											\
+					namespace atmega{_endl endl;}																\
+					namespace atmega{_tab tab;}																\
+					namespace atmega{_commit commit;}																					
+					
 #ifdef SDFS
 void * operator new(size_t size); 
 void operator delete(void * ptr); 

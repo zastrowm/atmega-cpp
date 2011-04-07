@@ -5,18 +5,16 @@
  *  Author: zastrowm
  */ 
 
-#define low(x)   ((x) & 0xFF) 
-#define high(x)   (((x)>>8) & 0xFF) 
 
-
+#include "atmega.h"
 #include <avr/io.h>
 
 #pragma once
 
 namespace atmega{
 	
-	class Servo{
-		uint16_t panValue, tiltValue;
+	class servo{
+		static uint16_t panValue, tiltValue;
 	
 	public:
 		
@@ -31,8 +29,8 @@ namespace atmega{
 		
 		/**
 		 *	Configure the servo to operate correctly
-		 */
-		Servo(){			
+		 */		
+		static void init(){
 			//Enables output compare match, output = high, 
 			TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11);	//| (1 < COM1B1) 
 			TCCR1B = (1 << WGM13) | (1 << CS11);
@@ -41,6 +39,13 @@ namespace atmega{
 			
 			DDRD |= (1 << PD4) | (1<< PD5);
 			
+			reset();
+		}
+		
+		/**
+		 *	Reset the servo to the default position
+		 */
+		static void reset(){
 			setPan(panMid);
 			setTilt(tiltMid);
 		}
@@ -50,7 +55,7 @@ namespace atmega{
 		 *
 		 *	@param move the panning motor to an absolute position
 		 */
-		void pan(uint16_t value){
+		static void pan(int16_t value){
 			setPan(panValue + value);	
 		}
 		
@@ -59,7 +64,7 @@ namespace atmega{
 		 *
 		 *	@param move the panning motor to an absolute position
 		 */
-		void tilt(uint16_t value){
+		static void tilt(int16_t value){
 			setTilt(tiltValue + value);	
 		}		
 		
@@ -68,7 +73,7 @@ namespace atmega{
 		 *
 		 *	@param move the panning motor to an absolute position
 		 */
-		void setPan(uint16_t value){
+		static void setPan(uint16_t value){
 			OCR1A = value;			
 			panValue = value;
 		}
@@ -78,11 +83,18 @@ namespace atmega{
 		 *
 		 *	@param move the tilting motor to an absolute position
 		 */
-		void setTilt(uint16_t value){
+		static void setTilt(uint16_t value){
 			OCR1B = value;
 			tiltValue = value;
 		}
 		
+		static int16_t mapTilt(int16_t x){
+		  return ((x - 0) * ((tiltMax - tiltMin) / (144 - 0))) + tiltMin;
+		}
+		
+		static int16_t mapPan(int16_t x){
+		  return ((x - 0) * ((panMax - panMin) / (176 - 0))) + panMin;
+		}
 		
 				
 				

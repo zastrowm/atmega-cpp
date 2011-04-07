@@ -30,6 +30,14 @@ namespace atmega{
 		void clear(){
 			writeIndex = 0;
 		}
+		
+		/**
+		 *	Move one unit back
+		 */
+		void back(){
+			if (writeIndex > 0)
+				writeIndex = 0;
+		}
 
 		/**
 		 *	Put a character into the buffer
@@ -88,7 +96,7 @@ namespace atmega{
 		 *		on the end
 		 */
 		char * str(){
-			this->buffer[writeIndex] = NULL;
+			this->buffer[writeIndex] = '\0';
 			return this->buffer;
 		}
 
@@ -105,10 +113,19 @@ namespace atmega{
 		uint8_t sprintf(char *format, ...){
 			va_list args;
 			va_start (args, format);
-			int ret = vsprintf(buffer + writeIndex,format, args);
+			int ret = vsprintf(buffer,format, args);
 			va_end (args);
-			writeIndex += strlen(buffer + writeIndex);
+			recalculateIndex();
+			buffer[writeIndex] = '\0';
 			return ret;
+		}
+		
+		/**
+		 *	Recalculate the write index after using the raw char* buffer.  This should always be
+		 *		called after using buffer.str() to modify the raw buffer
+		 */
+		void recalculateIndex(){
+			this->writeIndex = strlen(buffer);
 		}
 	};
 
