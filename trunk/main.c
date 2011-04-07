@@ -9,44 +9,28 @@
 #include "StaticMap.h"
 #include "StringBuffer.h"
 #include "StringWriter.h"
-
-#include <stdio.h>
-
+#include "Servo.h"
+#include "serial.h"
 
 USING_CPP();
 
 using namespace atmega;
 
-
-
 int main(){
+
+	Servo servo;
 	
-
-	StaticMap<string,string,10> map(&string::empty);
-	map.push("Mac","Friend");
-	map.push("John","Foe");
-	map.push("Nate","Mate");
+	serial::init();
 	
-	string x("Hello, World");
-
-	StringBuffer<128> buffer;
-
-	//StringWriter<StringBuffer<128>> sw(&buffer);
-
-	buffer<<*map["Mac"];
-
-	buffer<<'H'<<'I'<<"Hello, World";
-
-	buffer.put('H');
-	buffer.put('I');
-	buffer.put("Hello, WOrld");
-
-	printf(buffer.str());
-
-
-	system("PAUSE");
-
-	//list.push("Hi");
+	while (true){
+		string cmd;
+		cmd = serial::getString();
+		if (cmd == "tilt")
+			servo.tilt(100);
+		else if (cmd == "pan")
+			servo.pan(100);
+		serial::putString(cmd);
+	}
 
 
 	return 0;

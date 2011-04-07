@@ -31,7 +31,7 @@ namespace atmega{
 		 *	@param i the index of the element
 		 *	@return the element at that index
 		 */
-		int& operator[] (uint8_t i){
+		TYPE& operator[] (uint8_t i){
 			return this->data[i];
 		}
 
