@@ -1,8 +1,11 @@
 
 #pragma once
 
+
 #include "string.h"
 #include "StringWriter.h"
+
+#include <stdarg.h>
 
 namespace atmega{
 
