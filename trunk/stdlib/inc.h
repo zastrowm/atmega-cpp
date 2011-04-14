@@ -15,7 +15,13 @@ namespace atmega{
 					namespace atmega{_endl endl;}																\
 					namespace atmega{_tab tab;}																\
 					namespace atmega{_commit commit;}																					
-					
+
+namespace atmega{
+	extern _endl endl;
+	extern _tab tab;
+	extern _commit commit;
+};	
+		
 #ifdef SDFS
 void * operator new(size_t size); 
 void operator delete(void * ptr); 
