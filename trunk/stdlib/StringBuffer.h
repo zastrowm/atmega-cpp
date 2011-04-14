@@ -17,6 +17,10 @@ namespace atmega{
 
 	public:
 
+		uint8_t length(){
+			return writeIndex;
+		}
+
 		/**
 		 *	Create a new buffer
 		 */
@@ -36,7 +40,7 @@ namespace atmega{
 		 */
 		void back(){
 			if (writeIndex > 0)
-				writeIndex = 0;
+				writeIndex--;
 		}
 
 		/**
