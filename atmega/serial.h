@@ -20,6 +20,8 @@
 namespace atmega{
 	
 	class Serial : public StringWriter<Serial>{
+		
+		string lastCommand;
 	
 	public:
 		Serial(uint8_t val = UBRR_VAL){
@@ -37,9 +39,7 @@ namespace atmega{
 	
 		char getChar(){
 			while(!(UCSRA&(1<<RXC)));
-			uint8_t data = UDR;
-			put(data);
-			return data;
+			return UDR;
 		}
 	
 		void put(string s){
@@ -58,20 +58,46 @@ namespace atmega{
 			char letter;
 			do{
 				letter = getChar();	
-				if (letter == '\r' || letter == '\n' || letter == '\0'){
+
+				if (letter == 27){
+					letter = getChar();
+					if (letter == '['){
+						letter = getChar();
+						if (letter == 'A'){
+							while (buffer.length() > 0){
+								buffer.back();
+								put((char)127);
+							}
+							buffer.clear();
+							buffer.put(lastCommand);
+							put(lastCommand);	
+						}	
+						
+						else if (letter == 'B')
+							;//put("down");
+						else if (letter == 'C')
+							;//put("right");
+						else if (letter == 'D')
+							;//put ("left");
+					}
+					
+						
+				} else if (letter == '\r' || letter == '\n' || letter == '\0'){
 					put('\r');
 					put('\n');
 					break;
-				} else if (letter == '\b')
+				} else if (letter == 127){
+					put((char)127);
 					buffer.back();
-				else
+					//nop			
+				} else {
+					put(letter);
 					buffer.put(letter);
+				}					
 			} while (true);
 			
-			string t;
-			t = buffer.toString();
-			
-			return t;
+			lastCommand = buffer.toString();		
+			return lastCommand;
 		}
 	};
 };
