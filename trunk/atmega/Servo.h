@@ -18,13 +18,13 @@ namespace atmega{
 	
 	public:
 		
-		static const uint16_t panMin = 550;
-		static const uint16_t panMax = 2450;
+		static const uint16_t panMin = 500;
 		static const uint16_t panMid = 1500;
+		static const uint16_t panMax = 2450;
 
-		static const uint16_t tiltMin = 1000;
-		static const uint16_t tiltMax = 2500;
+		static const uint16_t tiltMin = 900;
 		static const uint16_t tiltMid = 1500;
+		static const uint16_t tiltMax = 2500;
 		
 		
 		/**
@@ -74,6 +74,11 @@ namespace atmega{
 		 *	@param move the panning motor to an absolute position
 		 */
 		static void setPan(uint16_t value){
+			if (value < panMin)
+				value = panMin;
+			else if (value > panMax)
+				value = panMax;
+			
 			OCR1A = value;			
 			panValue = value;
 		}
@@ -84,16 +89,31 @@ namespace atmega{
 		 *	@param move the tilting motor to an absolute position
 		 */
 		static void setTilt(uint16_t value){
+			if (value < tiltMin)
+				value = tiltMin;
+			else if (value > tiltMax)
+				value = tiltMax;			
+			
 			OCR1B = value;
 			tiltValue = value;
 		}
 		
+		/** 
+		 *
+		 *
+		 *
+		 */
 		static int16_t mapTilt(int16_t x){
-		  return ((x - 0) * ((tiltMax - tiltMin) / (144 - 0))) + tiltMin;
+			return (x * ((tiltMax - tiltMin) / (144 - 0))) + tiltMin;
 		}
 		
+		/** 
+		 *
+		 *
+		 *
+		 */
 		static int16_t mapPan(int16_t x){
-		  return ((x - 0) * ((panMax - panMin) / (176 - 0))) + panMin;
+			return (x * ((panMax - panMin) / (176 - 0))) + panMin;
 		}
 		
 				
