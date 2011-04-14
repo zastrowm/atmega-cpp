@@ -4,15 +4,17 @@
  * Created: 4/4/2011 11:51:40 PM
  *  Author: zastrowm
  */ 
+#define MYDEBUG
 
 #include <stdio.h>
-
+#include "stdlib/inc.h"
 #include "stdlib/string.h"
 #include "stdlib/StaticMap.h"
 #include "stdlib/StringBuffer.h"
 #include "stdlib/StringWriter.h"
 #include "atmega/servo.h"
 #include "atmega/serial.h"
+#include "atmega/twi.h"
 
 USING_CPP();
 USING_ATMEGA();
@@ -39,7 +41,9 @@ int main(){
 	
 	Serial serial;
 	
-	servo::init();	;
+	servo::init();
+	static const uint8_t CAM_ADDRESS = 0xC0;
+	TwoWireInterface::init();
 
 	while (true){
 		request = serial.getString();
@@ -71,11 +75,30 @@ int main(){
 				buffer.recalculateIndex();
 				serial<<(cmd = buffer.toString())<<endl;				
 				handled = true;
+			} else if (cmd == "camRegRead" || cmd == "crr") {
+				uint8_t data = TwoWireInterface::read(CAM_ADDRESS, arg1);
+				if (TwoWireInterface::error) {
+					serial << "Two wire interface error." << endl;
+				} else {
+					buffer.sprintf("Camera register 0x%x = 0x%x", arg1, data);
+					buffer.recalculateIndex();
+					serial << (cmd = buffer.toString()) << endl;
+				}
+				
+				handled = true;
 			}
 			break;
 		case 3:	//command and 2 args
-			if (cmd == "writeIO"){
+			if (cmd == "writeIO") {
 				writeIO(arg1,arg2);
+				handled = true;
+			} else if (cmd == "camRegWrite" || cmd == "crw") {
+				TwoWireInterface::write(CAM_ADDRESS, arg1, arg2);
+				if (TwoWireInterface::error) {
+					serial << "Two wire interface error." << endl;					
+				} else {
+					serial << "Two wire write success." << endl;
+				}
 				handled = true;
 			}
 		}
