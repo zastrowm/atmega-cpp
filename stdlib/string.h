@@ -238,8 +238,21 @@ namespace atmega{
 	private:
 		_stringnode<TSIZE> *pNode;
 	};	//end class string
-
+	
 	typedef BasicString<uint8_t> string;
+	
+	
+	class _ToString{
+		public:
+		string (*__classToString)();
+		
+		_ToString(string (*toString)()){
+			this->__classToString = toString;
+		}		
+				
+	};
+
+	
 
 }
 
