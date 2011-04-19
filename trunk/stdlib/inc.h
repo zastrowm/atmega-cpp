@@ -18,7 +18,7 @@ namespace atmega{
 					namespace atmega{_endl endl;}																\
 					namespace atmega{_tab tab;}																\
 					namespace atmega{_commit commit;}															\
-					uint8_t TwoWireInterface::error = false;						
+					//uint8_t TwoWireInterface::error = false;						
 
 namespace atmega{
 	extern _endl endl;

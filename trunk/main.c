@@ -61,6 +61,9 @@ int main(){
 			} else if (cmd == "help"){
 				printHelp(serial);
 				handled = true;
+			} else if (cmd == "clear"){
+				serial<<'\f';
+				handled = true;
 			}
 			break;
 		case 2:	//command and 1 arg
@@ -112,13 +115,19 @@ int main(){
 	return 0;
 }
 
-
+/**
+ *	Print the available commands to the serial
+ *	
+ *	@param serial the serial to output to
+ */
 void printHelp(Serial &serial){
 	serial	<<"Availabile Commands:"<<endl
-			<<tab<<"tilt <num>           : tilt the servo to a designated location"<<endl
-			<<tab<<"pan <num>            : pan the servo to a designated location"<<endl
-			<<tab<<"reset                : reset the servo to it's default position"<<endl
-			<<tab<<"readIO <hex>         : read the value from a port"<<endl
-			<<tab<<"writeIO <hex> <hex>  : write a value to a port"<<endl
-			<<tab<<"help : prints this help message"<<endl;
+			<<tab<<"tilt <num>              : tilt the servo to a designated location"<<endl
+			<<tab<<"pan <num>               : pan the servo to a designated location"<<endl
+			<<tab<<"reset                   : reset the servo to it's default position"<<endl
+			<<tab<<"readIO <hex>            : read the value from a port"<<endl
+			<<tab<<"writeIO<hex> <hex>      : write a value to a port"<<endl
+			<<tab<<"camRegRead<hex>         : read a specific camera register"<<endl
+			<<tab<<"camRegWrite <hex> <hex> : write a specific camera register"<<endl
+			<<tab<<"help                    : prints this help message"<<endl;
 }

@@ -104,7 +104,8 @@ namespace atmega{
 		 *
 		 */
 		static int16_t mapTilt(int16_t x){
-			return (x * ((tiltMax - tiltMin) / (144 - 0))) + tiltMin;
+			static const int16_t multipler = (tiltMax - tiltMin) / (144 - 0);
+			return x * multipler + tiltMin;
 		}
 		
 		/** 
@@ -113,7 +114,8 @@ namespace atmega{
 		 *
 		 */
 		static int16_t mapPan(int16_t x){
-			return (x * ((panMax - panMin) / (176 - 0))) + panMin;
+			static const int16_t multipler = (panMax - panMin) / (176 - 0);
+			return (x * multipler) + panMin;
 		}
 		
 				
