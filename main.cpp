@@ -4,15 +4,17 @@
  * Created: 4/4/2011 11:51:40 PM
  *  Author: zastrowm
  */ 
+#define MYDEBUG
 
 #include <stdio.h>
-
+#include "stdlib/inc.h"
 #include "stdlib/string.h"
 #include "stdlib/StaticMap.h"
 #include "stdlib/StringBuffer.h"
 #include "stdlib/StringWriter.h"
 #include "atmega/servo.h"
 #include "atmega/serial.h"
+#include "atmega/twi.h"
 
 USING_CPP();
 USING_ATMEGA();
@@ -39,7 +41,9 @@ int main(){
 	
 	Serial serial;
 	
-	servo::init();	;
+	servo::init();
+	static const uint8_t CAM_ADDRESS = 0xC0;
+	TwoWireInterface::init();
 
 	while (true){
 		request = serial.getString();
@@ -57,6 +61,9 @@ int main(){
 			} else if (cmd == "help"){
 				printHelp(serial);
 				handled = true;
+			} else if (cmd == "clear"){
+				serial<<'\f';
+				handled = true;
 			}
 			break;
 		case 2:	//command and 1 arg
@@ -71,11 +78,30 @@ int main(){
 				buffer.recalculateIndex();
 				serial<<(cmd = buffer.toString())<<endl;				
 				handled = true;
+			} else if (cmd == "camRegRead" || cmd == "crr") {
+				uint8_t data = TwoWireInterface::read(CAM_ADDRESS, arg1);
+				if (TwoWireInterface::error) {
+					serial << "Two wire interface error." << endl;
+				} else {
+					buffer.sprintf("Camera register 0x%x = 0x%x", arg1, data);
+					buffer.recalculateIndex();
+					serial << (cmd = buffer.toString()) << endl;
+				}
+				
+				handled = true;
 			}
 			break;
 		case 3:	//command and 2 args
-			if (cmd == "writeIO"){
+			if (cmd == "writeIO") {
 				writeIO(arg1,arg2);
+				handled = true;
+			} else if (cmd == "camRegWrite" || cmd == "crw") {
+				TwoWireInterface::write(CAM_ADDRESS, arg1, arg2);
+				if (TwoWireInterface::error) {
+					serial << "Two wire interface error." << endl;					
+				} else {
+					serial << "Two wire write success." << endl;
+				}
 				handled = true;
 			}
 		}
@@ -89,13 +115,19 @@ int main(){
 	return 0;
 }
 
-
+/**
+ *	Print the available commands to the serial
+ *	
+ *	@param serial the serial to output to
+ */
 void printHelp(Serial &serial){
 	serial	<<"Availabile Commands:"<<endl
-			<<tab<<"tilt <num>           : tilt the servo to a designated location"<<endl
-			<<tab<<"pan <num>            : pan the servo to a designated location"<<endl
-			<<tab<<"reset                : reset the servo to it's default position"<<endl
-			<<tab<<"readIO <hex>         : read the value from a port"<<endl
-			<<tab<<"writeIO <hex> <hex>  : write a value to a port"<<endl
-			<<tab<<"help : prints this help message"<<endl;
+			<<tab<<"tilt <num>              : tilt the servo to a designated location"<<endl
+			<<tab<<"pan <num>               : pan the servo to a designated location"<<endl
+			<<tab<<"reset                   : reset the servo to it's default position"<<endl
+			<<tab<<"readIO <hex>            : read the value from a port"<<endl
+			<<tab<<"writeIO<hex> <hex>      : write a value to a port"<<endl
+			<<tab<<"camRegRead<hex>         : read a specific camera register"<<endl
+			<<tab<<"camRegWrite <hex> <hex> : write a specific camera register"<<endl
+			<<tab<<"help                    : prints this help message"<<endl;
 }
