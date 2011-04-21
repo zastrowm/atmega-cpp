@@ -7,16 +7,20 @@
 
 
 
-#define USING_CPP() void * operator new(size_t size) {return malloc(size);}										\
-					void operator delete(void * ptr) { free(ptr); } 											\
-					template <typename TSIZE> atmega::_stringnode<TSIZE> atmega::_stringnode<TSIZE>::nullnode;	\
-					template <typename TSIZE> atmega::BasicString<TSIZE> atmega::BasicString<TSIZE>::empty;		\
-					namespace atmega{_endl endl;}																\
-					namespace atmega{_tab tab;}																	\
-					namespace atmega{_commit commit;}															\
-					namespace atmega{StringBuffer<128> gBuffer;}												\
-					namespace atmega{char __g_buffer_[16];}														\
-					namespace atmega{char * hex(uint8_t val){sprintf(__g_buffer_,"0x%x",val); return __g_buffer_;}}
+#define USING_CPP() void * operator new(size_t size) {return malloc(size);}											\
+					void operator delete(void * ptr) { free(ptr); } 												\
+					template <typename TSIZE> atmega::_stringnode<TSIZE> atmega::_stringnode<TSIZE>::nullnode;		\
+					template <typename TSIZE> atmega::BasicString<TSIZE> atmega::BasicString<TSIZE>::empty;			\
+					namespace atmega{																				\
+						_endl endl;																					\
+						_tab tab;																					\
+						_commit commit;																				\
+						StringBuffer<128> gBuffer;																	\
+						char __g_buffer_[16];																		\
+						char * hex(uint8_t val){sprintf(__g_buffer_,"0x%x",val); return __g_buffer_;}				\
+						char * hex(uint16_t val){sprintf(__g_buffer_,"0x%x",val); return __g_buffer_;}				\
+						char * num(uint8_t val){sprintf(__g_buffer_,"%d",val); return __g_buffer_;}					\
+					}
 					//uint8_t TwoWireInterface::error = false;						
 
 
@@ -31,6 +35,8 @@ namespace atmega{
 	
 	extern char __g_buffer_[16];
 	extern char * hex(uint8_t val);
+	extern char * hex(uint16_t val);
+	extern char * num(uint8_t val);
 };
 
 void * operator new(size_t size); 
