@@ -2,7 +2,7 @@
  * serial.h
  *
  * Created: 3/23/2011 11:21:37 AM
- *  Author: zastrowm
+ *  Author: zastrowm, dykstran, klehmc
  */ 
 
 #include "atmega.h"
