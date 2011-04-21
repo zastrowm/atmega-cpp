@@ -7,6 +7,7 @@
 #define MYDEBUG
 
 #include <stdio.h>
+#include <avr/interrupt.h>
 #include "stdlib/inc.h"
 #include "stdlib/string.h"
 #include "stdlib/StaticMap.h"
@@ -21,8 +22,30 @@ USING_ATMEGA();
 
 using namespace atmega;
 
+volatile uint8_t globalBuf = 'a';
 
+ISR(INT1_vect) {
+	cli();
+	globalBuf++;
+	serial << "Int1_vect called!" << endl;
 
+	sei();
+}
+
+ISR(INT0_vect) {
+	cli();
+	globalBuf += 2;
+	serial << "Int0_vect called!" << endl;
+	sei();
+}
+
+ISR(INT2_vect) {
+	cli();
+	globalBuf += 10;
+	serial << "Int2_vect called!" << endl;
+
+	sei();
+}
 
 uint8_t readIO(uint8_t port){
 	return *((volatile uint8_t*)(port + 0x20));
@@ -35,6 +58,7 @@ void writeIO(uint8_t port,uint8_t value){
 void printHelp(Serial &serial);
 
 int main(){
+	cli();
 	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
 	string request,cmd;
@@ -44,6 +68,8 @@ int main(){
 	servo::init();
 	static const uint8_t CAM_ADDRESS = 0xC0;
 	TwoWireInterface::init();
+	
+	serial << "Booting..." << endl;
 
 	while (true){
 		request = serial.getString();
@@ -55,30 +81,57 @@ int main(){
 		
 		switch(count){		
 		case 1:	//just the command
-			if (cmd == "reset"){
+			if (cmd % "reset"){
 				servo::reset();
 				handled = true;
-			} else if (cmd == "help"){
+			} else if (cmd % "help"){
 				printHelp(serial);
 				handled = true;
-			} else if (cmd == "clear"){
-				serial<<'\f';
+			} else if (cmd % "startCam" ||
+						cmd % "sac") {
+				DDRA = 0x00;
+				sei();
+				uint8_t buf = MCUCR;
+				// set int1 trigger on any change
+				buf &= ~(1 << ISC11);
+				buf |= (1 << ISC10);
+				
+				// set int0 trigger on any change
+				buf &= ~(1 << ISC01);
+				buf |= (1 << ISC00);
+				
+				MCUCR |= buf;
+				
+				// one for rising edge zero for falling edge on INT2
+				MCUSR |= (1 << ISC2);
+				
+				// enable all three interrupts
+				GICR = (1 << INT1) | (1 << INT0) | (1 << INT2);
+
+				
+				serial << "Port A: " << PORTA + 'A' << endl;
+				serial << "global buf: " << globalBuf << endl;
 				handled = true;
-			}
+			} else if (cmd % "stopCam" ||
+						cmd % "soc") {
+				cli();
+				handled = true;
+			}			
 			break;
 		case 2:	//command and 1 arg
-			if (cmd == "tilt"){
+			if (cmd % "tilt"){
 				servo::setTilt(servo::mapTilt(arg1));
 				handled = true;
-			} else if (cmd == "pan"){
+			} else if (cmd % "pan"){
 				servo::setPan(servo::mapPan(arg1));
 				handled = true;
-			}  else if (cmd == "readIO"){
+			}  else if (cmd % "readIO"){
 				buffer.sprintf("Port 0x%x = 0x%x", arg1, readIO(arg1));
 				buffer.recalculateIndex();
 				serial<<(cmd = buffer.toString())<<endl;				
 				handled = true;
-			} else if (cmd == "camRegRead" || cmd == "crr") {
+			} else if (cmd % "camRegRead" ||
+						cmd % "crr") {
 				uint8_t data = TwoWireInterface::read(CAM_ADDRESS, arg1);
 				if (TwoWireInterface::error) {
 					serial << "Two wire interface error." << endl;
@@ -92,10 +145,11 @@ int main(){
 			}
 			break;
 		case 3:	//command and 2 args
-			if (cmd == "writeIO") {
+			if (cmd % "writeIO") {
 				writeIO(arg1,arg2);
 				handled = true;
-			} else if (cmd == "camRegWrite" || cmd == "crw") {
+			} else if (cmd % "camRegWrite" ||
+						cmd % "crw") {
 				TwoWireInterface::write(CAM_ADDRESS, arg1, arg2);
 				if (TwoWireInterface::error) {
 					serial << "Two wire interface error." << endl;					
