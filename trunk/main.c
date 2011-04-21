@@ -26,6 +26,8 @@ USING_ATMEGA();
 using namespace atmega;
 
 ImageInfo image;
+volatile uint16_t z;
+volatile uint16_t maxz;
 
 
 void printHelp(Serial &serial);
@@ -34,40 +36,51 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
 static const uint8_t CAM_ADDRESS = 0xC0;
 
 void PCLK_Handler(){
-	image.nexPixel(PINA);
+	z++;
 }
 
 void HREF_Handler(){
-	image.nextRow();
+	z++;
 }
 
 int main(){
 	cli();
+	maxz = 0;
+	z = 0;
 	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
 	string request,cmd;
 	
+	// initialize the serial comms
 	Serial serial;
-	
 	servo::init();
-	
-	TwoWireInterface::init();
-	
-	Interrupts::activate(true);
-	
-	Interrupts::interrupt0Handler = &PCLK_Handler;
-	Interrupts::interrupt1Handler = &HREF_Handler;
-	
 	serial << "Booting..." << endl;
 	
+	// initialize the TWI, set camera to every other pixel and slower speed
+	TwoWireInterface::init();
+	TwoWireInterface::write(0xc0, 0x11, 0x08);
+	_delay_ms(100);
+	TwoWireInterface::write(0xc0, 0x14, 0x20);
+	_delay_ms(100);
+	//TwoWireInterface::write(0xc0, 0x39, 0x40);
+	
+	// enable interrupts
+	Interrupts::activate(true);
+	
+	// setup external interrupts
+	Interrupts::interrupt0Handler = &PCLK_Handler;
+	Interrupts::interrupt1Handler = &HREF_Handler;
 	Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
 	Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
-
+	
 	while (true){
-		while(!image.doneComputing);
-		serial<<"minx:"<<hex(image.minX);
-		request = serial.getString();
+		//while(!image.doneComputing);
+		uint16_t n;
+		n = z;
+		n = (PIND & 0x08);
+		serial<<"maxx:"<<hex(n)<< endl;
 		image.reset();
+		//request = serial.getString();
 		/*
 		count = sscanf(request.str(),"%s %x %x",buffer.str(),&arg1, &arg2);
 		buffer.recalculateIndex();
