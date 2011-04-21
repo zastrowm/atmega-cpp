@@ -1,3 +1,9 @@
+/**
+ * ImageInfo.h
+ *
+ * April 20, 2011
+ * @author zastrowm, dykstran, klehmc
+ */
 
 #pragma once
 
@@ -6,18 +12,24 @@
 
 namespace atmega{
 
-	/**
+/**
  *	Class to facilitate using the image data
  */
 class ImageInfo{
 
 	public:
+		// The edges of the white shape
 		uint8_t minY, minX, maxY, maxX;
+		
+		// The current pixel location
 		uint8_t x,y;
+		
+		// The value of the current pixel
 		uint8_t value;
 
 		/**
-		 *	Constructor
+		 * Instantiates a new ImageInfo object.
+		 *
 		 */
 		ImageInfo(){
 			reset();
@@ -26,7 +38,7 @@ class ImageInfo{
 		/**
 		 *	Calculate the mins/maxes with the current value
 		 */
-		void withValue(){
+		void calculateMaxMin(){
 			if (isWhite(value)){
 				//check x min & max
 				if (x < minX)
@@ -58,27 +70,28 @@ class ImageInfo{
 		/**
 		 *	Check whether or not the current pixel is white
 		 *
-		 *	@param value the value of the pixel
+		 *	@param value The value of the pixel.
 		 */
 		bool isWhite(uint8_t value){
 			return value > 0x88;
 		}
 
 		/**
-		 *	Move the point to the next row
+		 *	Move the point to the next row.
 		 *
-		 *	@param tValue the value of the pixel
+		 *	@param tValue The value of the pixel.
 		 */
-		void nextRow(uint8_t tValue){
+		void nexPixel(uint8_t tValue){
 			value = tValue;
-			withValue();
+			// recalculate the borders of the shape
+			calculateMaxMin();
 			x++;
 		}
 
 		/**
-		 *	Move to the next column
+		 *	Move to the next column.
 		 */
-		void nextColumn(){
+		void nextRow(){
 			y++;
 			x = 0;
 		}
