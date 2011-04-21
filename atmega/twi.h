@@ -53,9 +53,20 @@ static atmega::Serial serial;
 
 namespace atmega{
 	
+	/**
+	 * This class contains methods for the two wire interface.
+	 *
+	 */
 	class TwoWireInterface {
 		private:
+		
+			/**
+			 * Performs the specified command on the TWI interface.
+			 *
+			 * @param command The command to send over TWI.
+			 */
 			static uint8_t action(uint8_t command) {
+				// send the command, re-enable interrupts, and re-enable the TWI
 				TWCR = command | (1 << TWINT) | (1 << TWEN);
 			
 				// wait for interrupt
@@ -63,16 +74,18 @@ namespace atmega{
 			
 				return TW_STATUS;
 			}
-
-			static bool setLocation(uint8_t address, uint8_t reg) {
-
-			
-				return true;
-			}
 	
 		public:
+			/**
+			 * The error flag for TWI.
+			 *
+			 */
 			static uint8_t error;
 
+			/**
+			 * Initializes the TWI interface.
+			 *
+			 */
 			static void init() {
 				error = false;
 				// Set up the TWBR register, for ease we set the prescalar to 0
@@ -81,35 +94,51 @@ namespace atmega{
 				TWBR = 72;
 			}
 		
-	
-			#define uartPuts(str) DEBUGSTR(str)
+			/**
+			 * If the condition is false, prints to the debug stream the error and returns the code.
+			 *
+			 */
 			#define ASSERT(cond, code, error) if (!(cond)){ DEBUGSTR(error); return code;};
+				
+			/**
+			 * Print Error to the debug stream and stop TWI communication.
+			 *
+			 */
 			static void Error(void) {
 				DEBUGSTR("Error.");
-				// stop
+				// stop TWI comms
 				TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 			}
 		
+			/**
+			 * Stop TWI communication.
+			 *
+			 */
 			static void stop() {
 				TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 			}
 		
-		
+			/**
+			 * Reads the specified register on the selected device.
+			 *
+			 * @param address The address of the device to read from.
+			 * @param regNumber The register on the device to read.
+			 * @return The data byte from the device's register.
+			 */
 			static uint8_t read(uint8_t address, uint8_t regNumber) {
-					// send start command
-		
+				// send start command
 				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
 			
 				// send slave write address
 				TWDR = 0xC0;
 	
+				// master transmit, slave acknowledge
 				ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
 	
 				// send word address
 				TWDR = regNumber;
 				ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack");
 	
-				
 				// delay, send repeated start
 				TWCR = 0;
 				stop();
@@ -120,6 +149,7 @@ namespace atmega{
 				TWDR = 0xC1;
 				ASSERT(action(0) == TW_MR_SLA_ACK, TW_STATUS, "Failed address 2");
 
+				// master receive, data not acknowledge
 				ASSERT(action(0) == TW_MR_DATA_NACK, TW_STATUS, "Failed data nack");
 
 				stop();
@@ -127,13 +157,24 @@ namespace atmega{
 				return TWDR;			
 			}
 		
+			/**
+			 * Writes data to the register on the specified device.
+			 *
+			 * @param address The address of the device to write to.
+			 * @param register The register on the device to write to.
+			 * @param data The data to write to the register.
+			 * @return The TW status register.
+			 */
 			static uint8_t write(uint8_t address, uint8_t reg, uint8_t data) {
 				error = true;
+				
+				// send start
 				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
 			
 				// send slave write address
 				TWDR = 0xC0;
 	
+				// master transmit, slave acknowledge
 				ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
 	
 				// send word address
