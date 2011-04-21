@@ -1,3 +1,10 @@
+/**
+ * twi.h
+ *
+ * April 20, 2011
+ * @author zastrowm, dykstran, klehmc
+ */
+
 #include <stdint.h>
 #include "serial.h"
 #include <avr/io.h>
