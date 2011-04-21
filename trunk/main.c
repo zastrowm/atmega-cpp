@@ -25,60 +25,44 @@ USING_ATMEGA();
 
 using namespace atmega;
 
-volatile uint8_t pCLKVal = 0;
-
-
-void printHelp(Serial &serial);
-bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
+volatile uint16_t count;
 
 static const uint8_t CAM_ADDRESS = 0xC0;
+	Serial ser;
+bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
 
-void PCLK_Handler(){
-	
-}
-
-void HREF_Handler(){
+void href() {
 	cli();
-	pCLKVal++;
+	uint16_t hi = count;
+	ser.putHex(hi);
+	
 	sei();
 }
 
-int main(){
+void pclk() {
 	cli();
-	int16_t arg1,arg2,count ;
-	StringBuffer<128> buffer;
-	string request,cmd;
-	
-	Serial serial;
-	
-	servo::init();
-	
-	TwoWireInterface::init();
-	
-	Interrupts::activate(true);
-	
-	Interrupts::interrupt0Handler = &PCLK_Handler;
-	Interrupts::interrupt1Handler = &HREF_Handler;
-	
-	serial << "Booting..." << endl;
-	
-	Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
-	Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
 
-	while (true){
-		request = serial.getString();
-		count = sscanf(request.str(),"%s %x %x",buffer.str(),&arg1, &arg2);
-		buffer.recalculateIndex();
-		cmd = buffer.toString();
-		
-		if (!handleCommand(cmd,count,arg1,arg2)){
-			buffer.sprintf("Unrecognized Command: %s",request.str());
-			serial<<buffer.str()<<endl;
-			printHelp(serial);	
-		}
-		serial.putHex(pCLKVal);
-	}
-	return 0;
+	++count;
+	
+	sei();
+}
+	
+
+/**
+ *	Print the available commands to the serial
+ *	
+ *	@param serial the serial to output to
+ */
+void printHelp(Serial &serial){
+	serial	<<"Available Commands:"<<endl
+			<<tab<<"tilt <num>              : tilt the servo to a designated location"<<endl
+			<<tab<<"pan <num>               : pan the servo to a designated location"<<endl
+			<<tab<<"reset                   : reset the servo to it's default position"<<endl
+			<<tab<<"readIO <hex>            : read the value from a port"<<endl
+			<<tab<<"writeIO<hex> <hex>      : write a value to a port"<<endl
+			<<tab<<"camRegRead<hex>         : read a specific camera register"<<endl
+			<<tab<<"camRegWrite <hex> <hex> : write a specific camera register"<<endl
+			<<tab<<"help                    : prints this help message"<<endl;
 }
 
 
@@ -101,29 +85,10 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2){
 		} else if (cmd % "help"){
 			printHelp(serial);
 		} else if (cmd % "startCam" || cmd % "sac") {
-			DDRA = 0x00;
-			sei();
-			uint8_t buf = MCUCR;
-			// set int1 trigger on any change
-			buf &= ~(1 << ISC11);
-			buf |= (1 << ISC10);
-				
-			// set int0 trigger on any change
-			buf &= ~(1 << ISC01);
-			buf |= (1 << ISC00);
-				
-			MCUCR |= buf;
-				
-			// one for rising edge zero for falling edge on INT2
-			MCUSR |= (1 << ISC2);
-				
-			// enable all three interrupts
-			GICR = (1 << INT1) | (1 << INT0) | (1 << INT2);
+			serial << "No op." << endl;
 
-				
-			serial << "Port A: " << PORTA + 'A' << endl;
 		} else if (cmd % "stopCam" || cmd % "soc") {
-			cli();
+			serial << "No op." << endl;
 		} else  return false;
 		
 		break;
@@ -163,19 +128,38 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2){
 	return true;
 }
 
-/**
- *	Print the available commands to the serial
- *	
- *	@param serial the serial to output to
- */
-void printHelp(Serial &serial){
-	serial	<<"Available Commands:"<<endl
-			<<tab<<"tilt <num>              : tilt the servo to a designated location"<<endl
-			<<tab<<"pan <num>               : pan the servo to a designated location"<<endl
-			<<tab<<"reset                   : reset the servo to it's default position"<<endl
-			<<tab<<"readIO <hex>            : read the value from a port"<<endl
-			<<tab<<"writeIO<hex> <hex>      : write a value to a port"<<endl
-			<<tab<<"camRegRead<hex>         : read a specific camera register"<<endl
-			<<tab<<"camRegWrite <hex> <hex> : write a specific camera register"<<endl
-			<<tab<<"help                    : prints this help message"<<endl;
+int main() {
+		Interrupts::activate(true);
+	Interrupts::interrupt0Handler = &pclk;
+	Interrupts::interrupt1Handler = &href;
+	Interrupts::enable(Interrupts::Interrupt_0, INT0_RISING_EDGE);
+	Interrupts::enable(Interrupts::Interrupt_1, INT1_RISING_EDGE);
+	
+	int16_t arg1,arg2,count ;
+	StringBuffer<128> buffer;
+	string request,cmd;
+	
+	Serial serial;
+	
+	servo::init();
+	
+	TwoWireInterface::init();
+	
+
+	
+	serial << "Booting..." << endl;
+
+	while (true){
+		request = serial.getString();
+		count = sscanf(request.str(),"%s %x %x",buffer.str(),&arg1, &arg2);
+		buffer.recalculateIndex();
+		cmd = buffer.toString();
+		
+		if (!handleCommand(cmd,count,arg1,arg2)){
+			buffer.sprintf("Unrecognized Command: %s",request.str());
+			serial<<buffer.str()<<endl;
+			printHelp(serial);	
+		}
+	}
+	return 0;
 }
