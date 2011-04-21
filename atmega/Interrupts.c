@@ -23,9 +23,9 @@ void Interrupts::enable(Name name, uint8_t flags) {
 			uint8_t mask = (1 << ISC00) | (1 << ISC01);
 			flags &= mask;
 			// drive any zeros low
-			MCUCR &= (~mask) | flags;
+			MCUCSR &= (~mask) | flags;
 			// set any ones high
-			MCUCR |= flags;
+			MCUCSR |= flags;
 			// enable int0
 			GICR |= (1 << INT0);
 
@@ -36,9 +36,9 @@ void Interrupts::enable(Name name, uint8_t flags) {
 			uint8_t mask = (1 << ISC11) | (1 << ISC10);
 			flags &= mask;
 			// drive any zeros low
-			MCUCR &= (~mask) | flags;
+			MCUCSR &= (~mask) | flags;
 			// set any ones high
-			MCUCR |= flags;
+			MCUCSR |= flags;
 			// enable int0
 			GICR |= (1 << INT1);
 
