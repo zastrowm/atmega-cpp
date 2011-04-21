@@ -93,7 +93,11 @@ namespace atmega{
 		
 
 	private:
-			
+		/**
+		 *	Pan the motor
+		 *
+		 *	@param move the panning motor to an absolute position, without the normalized value
+		 */
 		static void _setPan(uint16_t value){
 			if (value < panMin)
 				value = panMin;
@@ -104,6 +108,11 @@ namespace atmega{
 			panValue = value;
 		}
 		
+		/**
+		 *	Tilt the motor
+		 *
+		 *	@param move the tilting motor to an absolute position, without the normalized value
+		 */
 		static void _setTilt(uint16_t value){
 			if (value < tiltMin)
 				value = tiltMin;
@@ -114,11 +123,23 @@ namespace atmega{
 			tiltValue = value;
 		}
 	
+		/**
+		 *	Map the tilting value to the normalized value
+		 *	
+		 *	@param x the tilt amount to be normalized
+		 *	@param x the normalized tilt value
+		 */ 
 		static int16_t mapTilt(int16_t x){
 			static const int16_t multipler = (tiltMax - tiltMin) / (144 - 0);
 			return x * multipler + tiltMin;
 		}
 
+		/**
+		 *	Map the panning value to the normalized value
+		 *	
+		 *	@param x the pan amount to be normalized
+		 *	@param x the normalized pan value
+		 */ 
 		static int16_t mapPan(int16_t x){
 			static const int16_t multipler = (panMax - panMin) / (176 - 0);
 			return (x * multipler) + panMin;
