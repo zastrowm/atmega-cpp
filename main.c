@@ -7,6 +7,7 @@
 #define MYDEBUG
 
 #include <stdio.h>
+#include <avr/interrupt.h>
 #include "stdlib/inc.h"
 #include "stdlib/string.h"
 #include "stdlib/StaticMap.h"
@@ -16,28 +17,34 @@
 #include "atmega/serial.h"
 #include "atmega/twi.h"
 #include "atmega/ImageInfo.h"
-#include "atmega/Interrupts.h"
 #include "atmega/util.h"
+#include "atmega/Interrupts.h"
 
 USING_CPP();
 USING_ATMEGA();
 
 using namespace atmega;
 
+volatile uint8_t pCLKVal = 0;
+
 
 void printHelp(Serial &serial);
-
-void test() {
-	asm("nop");
-	//serial << "Interrupt 0 called!" << endl;
-}
-
+bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
 
 static const uint8_t CAM_ADDRESS = 0xC0;
 
+void PCLK_Handler(){
+	
+}
+
+void HREF_Handler(){
+	cli();
+	pCLKVal++;
+	sei();
+}
+
 int main(){
-	Interrupts::activate(true);
-	Interrupts::interrupt2Handler = test;
+	cli();
 	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
 	string request,cmd;
@@ -48,7 +55,15 @@ int main(){
 	
 	TwoWireInterface::init();
 	
+	Interrupts::activate(true);
+	
+	Interrupts::interrupt0Handler = &PCLK_Handler;
+	Interrupts::interrupt1Handler = &HREF_Handler;
+	
 	serial << "Booting..." << endl;
+	
+	Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
+	Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
 
 	while (true){
 		request = serial.getString();
@@ -61,9 +76,12 @@ int main(){
 			serial<<buffer.str()<<endl;
 			printHelp(serial);	
 		}
+		serial.putHex(pCLKVal);
 	}
 	return 0;
 }
+
+
 
 /**
  *	Handle a command string
@@ -104,7 +122,6 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2){
 
 				
 			serial << "Port A: " << PORTA + 'A' << endl;
-			serial << "global buf: " << globalBuf << endl;
 		} else if (cmd % "stopCam" || cmd % "soc") {
 			cli();
 		} else  return false;
