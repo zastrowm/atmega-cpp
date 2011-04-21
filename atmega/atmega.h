@@ -7,4 +7,4 @@
 
 #include <avr/io.h>
 
-#define USING_ATMEGA()		uint16_t atmega::servo::panValue;	uint16_t atmega::servo::tiltValue;
+#define USING_ATMEGA()		uint16_t atmega::servo::panValue;	uint16_t atmega::servo::tiltValue;	uint8_t atmega::TwoWireInterface::error;
