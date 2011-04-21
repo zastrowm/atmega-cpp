@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "stringnode.h"
 
@@ -135,11 +136,41 @@ namespace atmega{
 		*	@param other the string we're setting this one equal to
 		*	@return a reference to this
 		*/
+		BasicString& operator%= (const char *other){
+			this->pNode->removeRef();
+
+			this->pNode = _stringnode<TSIZE>::create(strlen(other));
+			
+			for (uint8_t i = 0; i < this->pNode->length; ++i) {
+				this->pNode->str[i] = tolower(other[i]);
+			}
+
+			return *this;
+		}
+
+		/**
+		*	Set one string equal to another
+		*
+		*	@param other the string we're setting this one equal to
+		*	@return a reference to this
+		*/
+		BasicString& operator%= (const BasicString<TSIZE> &other){
+			this->operator %=(other.str());
+			return *this;
+		}
+
+		/**
+		*	Set one string equal to another
+		*
+		*	@param other the string we're setting this one equal to
+		*	@return a reference to this
+		*/
 		BasicString& operator= (const char *other){
 			this->pNode->removeRef();
 			this->pNode = _stringnode<TSIZE>::create(other,strlen(other));
 			return *this;
 		}
+
 
 		/**
 		*	Return a substring of the current string
@@ -188,6 +219,16 @@ namespace atmega{
 		bool operator ==(const char *other){
 			return strcmp(this->pNode->str, other) == 0;
 		}
+
+		bool operator %(const BasicString &other) {
+			return strcasecmp(this->pNode->str, other.pNode->str) == 0;
+		}
+		
+		bool operator %(const char *other) {
+			return strcasecmp(this->pNode->str, other) == 0;
+		}
+		
+		
 
 		/**
 		 *	Check if this string is empty
