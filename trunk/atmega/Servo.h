@@ -46,8 +46,8 @@ namespace atmega{
 		 *	Reset the servo to the default position
 		 */
 		static void reset(){
-			setPan(panMid);
-			setTilt(tiltMid);
+			_setPan(panMid);
+			_setTilt(tiltMid);
 		}
 		
 		/**
@@ -76,14 +76,9 @@ namespace atmega{
 		static void setPan(uint16_t value){
 			value = mapPan(value);
 			
-			if (value < panMin)
-				value = panMin;
-			else if (value > panMax)
-				value = panMax;
-			
-			OCR1A = value;			
-			panValue = value;
+			_setPan(value);
 		}
+
 		
 		/**
 		 *	Tilt the motor
@@ -93,6 +88,23 @@ namespace atmega{
 		static void setTilt(uint16_t value){
 			value = mapTilt(value);
 			
+			_setTilt(value);
+		}
+		
+
+	private:
+			
+		static void _setPan(uint16_t value){
+			if (value < panMin)
+				value = panMin;
+			else if (value > panMax)
+				value = panMax;
+			
+			OCR1A = value;			
+			panValue = value;
+		}
+		
+		static void _setTilt(uint16_t value){
 			if (value < tiltMin)
 				value = tiltMin;
 			else if (value > tiltMax)
@@ -101,22 +113,12 @@ namespace atmega{
 			OCR1B = value;
 			tiltValue = value;
 		}
-	private:
-		/** 
-		 *
-		 *
-		 *
-		 */
+	
 		static int16_t mapTilt(int16_t x){
 			static const int16_t multipler = (tiltMax - tiltMin) / (144 - 0);
 			return x * multipler + tiltMin;
 		}
-		
-		/** 
-		 *
-		 *
-		 *
-		 */
+
 		static int16_t mapPan(int16_t x){
 			static const int16_t multipler = (panMax - panMin) / (176 - 0);
 			return (x * multipler) + panMin;
