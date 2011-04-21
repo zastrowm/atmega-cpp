@@ -11,6 +11,11 @@
 
 namespace atmega{
 	template<typename TYPE,uint8_t SIZE>
+	
+	/**
+	 * Represents a list.
+	 *
+	 */
 	class StaticList{
 		
 		TYPE data[SIZE];		
@@ -19,7 +24,7 @@ namespace atmega{
 	public:
 
 		/**
-		 *	Set up the defaults
+		 *	Initialize a new list.
 		 */
 		StaticList(){
 			curIndex = 0;
@@ -28,69 +33,66 @@ namespace atmega{
 		/**
 		 *	Get the element at a specified index
 		 *
-		 *	@param i the index of the element
-		 *	@return the element at that index
+		 *	@param i The index of the element to be retrieved.
+		 *	@return The element at the specified index.
 		 */
 		TYPE& operator[] (uint8_t i){
 			return this->data[i];
 		}
 
 		/**
-		 *	Get the element at a specified index
+		 *	Get the element at a specified index.
 		 *
-		 *	@param i the index of the element
-		 *	@return the element at that index
+		 *	@param i The index of the element to be retrieved.
+		 *	@return The element at the specified index.
 		 */
 		TYPE& at (uint8_t i){
 			return this->data[i];
 		}
 
 		/**
-		 *	Add a new element to the array
+		 *	Add a new element to the end of the list.
 		 *
-		 *	@param toAdd the element to add
+		 *	@param toAdd The element to add.
 		 */
 		void push(TYPE &toAdd){
 			this->data[curIndex++] = toAdd;
 		}
 		
 		/**
-		 *	Get the last element in the array
+		 *	Get the last element in the list.
 		 *
-		 *	@return the last element in the array
+		 *	@return The last element in the list.
 		 */
 		TYPE pop(){
 			return this->data[curIndex--];
 		}
 
 		/**
-		 *	Get the current lenght of the array
+		 *	Get the current length of the list.
 		 *
-		 *	@return the length of the array
+		 *	@return The length of the list.
 		 */
 		uint8_t length(){
 			return this->curIndex;
 		}
 
 		/**
-		 *	Find out if this array is empty
+		 *	Find out if this list is empty.
 		 *
-		 *	@return whether or not the array is empty
+		 *	@return True if the list is empty, false otherwise.
 		 */
 		bool isEmpty(){
 			return (this->curIndex == 0);
 		}
 
 		/**
-		 *	Find out if this array is maxxed out
+		 *	Find out if this list has reached its maximum capacity.
 		 *
-		 *	@return whether or not the array is full
+		 *	@return True if the list is full, false otherwise.
 		 */
 		bool isFull(){
 			return (this->curIndex == SIZE);
 		}
-
-		
-		
 	};
 }
