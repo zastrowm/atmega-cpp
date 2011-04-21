@@ -5,4 +5,6 @@
  *  Author: zastrowm
  */ 
 
+#include <avr/io.h>
+
 #define USING_ATMEGA()		uint16_t atmega::servo::panValue;	uint16_t atmega::servo::tiltValue;
