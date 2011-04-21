@@ -10,7 +10,7 @@
 #include <avr/io.h>
 
 extern "C" {
-#include <util/delay.h>
+#include "util.h"
 }
 
 #ifndef TWI_H_
@@ -149,7 +149,7 @@ namespace atmega{
 				// delay, send repeated start
 				TWCR = 0;
 				stop();
-				_delay_ms(100);
+				delay(1);
 				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed restart");
 	
 				// send slave read
