@@ -26,6 +26,7 @@ class ImageInfo{
 		
 		// The value of the current pixel
 		uint8_t value;
+		volatile uint8_t doneComputing;
 
 		/**
 		 * Instantiates a new ImageInfo object.
@@ -36,14 +37,14 @@ class ImageInfo{
 		}
 
 		/**
-		 *	Calculate the mins/maxes with the current value
+		 *	Calculate the min/max with the current value
 		 */
 		void calculateMaxMin(){
 			if (isWhite(value)){
 				//check x min & max
 				if (x < minX)
 					minX = x;
-				else if ( x > maxX)
+				else if (x > maxX)
 					maxX = x;
 			
 				//check y min & max
@@ -65,6 +66,7 @@ class ImageInfo{
 			maxY = 0;
 			x = 0;
 			y = 0;
+			doneComputing = false;
 		}
 
 		/**
@@ -94,6 +96,10 @@ class ImageInfo{
 		void nextRow(){
 			y++;
 			x = 0;
+			
+			if (y == 144){
+				doneComputing = true;
+			}
 		}
 
 	};
