@@ -22,9 +22,9 @@ namespace atmega{
 
 	private:
 		/**
-		 *	Private constructor.  Construct from existing pNode
+		 *	Private constructor.  Construct from existing pNode.
 		 *
-		 *	@param n the node to use for this strings contents
+		 *	@param n The node to use for this strings contents
 		 */
 		BasicString(_stringnode<TSIZE> *n){
 			pNode = n;
@@ -34,7 +34,7 @@ namespace atmega{
 	public:
 
 		/**
-		 *	Empty constructor.  Initializes the string to an empty string 
+		 *	Empty constructor.  Initializes the string to an empty string.
 		 */
 		BasicString(){
 			pNode = &_stringnode<TSIZE>::nullnode;
@@ -49,9 +49,9 @@ namespace atmega{
 		}
 
 		/**
-		 *	Constructor which initalizes the string to the string passed in
+		 *	Constructor which initializes the string to the string passed in.
 		 *
-		 *	@param astr the string to set this string equal to
+		 *	@param astr The string to set this string equal to
 		 */
 		BasicString(char *astr){
 			pNode = _stringnode<TSIZE>::create(astr);
@@ -59,11 +59,11 @@ namespace atmega{
 		}
 
 		/**
-		 *	Constructor which initalizes the string to the string passed in
+		 *	Constructor which initializes the string to the string passed in
 		 *		but using only $length characters
 		 *
-		 *	@param astr the string to set this string equal to
-		 *	@param length the number of characters to copy in
+		 *	@param astr The string to set this string equal to.
+		 *	@param length The number of characters to copy in.
 		 */
 		BasicString(char *astr, TSIZE length){
 			pNode = _stringnode<TSIZE>::create(astr,length);
@@ -72,16 +72,16 @@ namespace atmega{
 
 		/**
 		 *	Destructor.  Remove the reference to the node
-		 *		and delete it if needed
+		 *		and delete it if needed.
 		 */
 		~BasicString(){
 			pNode->removeRef();
 		}
 
 		/**
-		 *	Get the raw c style string
+		 *	Get the raw c style string.
 		 *	
-		 *	@return a c-style string containing the content of this tring
+		 *	@return A c-style char pointer containing the content of this string.
 		 *	@note do not try to free() the result!
 		 */
 		const char* str() const{
@@ -89,39 +89,39 @@ namespace atmega{
 		}
 
 		/**
-		 *	Get the character at a specific index
+		 *	Get the character at a specific index.
 		 *
-		 *	@param i the index from which to retreive the character
-		 *	@return the character
+		 *	@param i The index from which to retrieve the character.
+		 *	@return The character at the specified index.
 		 */
 		const char at(TSIZE i) const{
 			return *(this->pNode->str + i);
 		}
 
 		/**
-		 *	Get the length of the string 
+		 *	Get the length of the string.
 		 *
-		 *	@return the length of the string
+		 *	@return The length of the string.
 		 */
 		/*inline*/ TSIZE length() const{
 			return this->pNode->length;
 		}
 
 		/**
-		 *	Return a substring of the current string
+		 *	Return a substring of the current string.
 		 *
-		 *	@param i the start index
-		 *	@return the substring from the start index to the end of the string
+		 *	@param i The start index.
+		 *	@return The substring from the start index to the end of the string.
 		 */
 		BasicString substr(TSIZE i){
 			return substr(i,this->length() - i);
 		}		
 	
 		/**
-		*	Set one string equal to another
+		*	Set one string equal to another.
 		*
-		*	@param other the string we're setting this one equal to
-		*	@return a reference to this
+		*	@param other The string we're setting this one equal to.
+		*	@return A reference to this string.
 		*/
 		BasicString& operator= (const BasicString<TSIZE> &other){
 			this->pNode->removeRef();
@@ -131,10 +131,10 @@ namespace atmega{
 		}
 
 		/**
-		*	Set one string equal to another
+		*	Set one string equal to another in lowercase.
 		*
-		*	@param other the string we're setting this one equal to
-		*	@return a reference to this
+		*	@param other The string we're setting this one equal to as lowercase.
+		*	@return A reference to this string.
 		*/
 		BasicString& operator%= (const char *other){
 			this->pNode->removeRef();
@@ -149,21 +149,50 @@ namespace atmega{
 		}
 
 		/**
-		*	Set one string equal to another
+		*	Set one string equal to another in lowercase.
 		*
-		*	@param other the string we're setting this one equal to
-		*	@return a reference to this
+		*	@param other The string we're setting this one equal to as lowercase.
+		*	@return A reference to this string.
 		*/
 		BasicString& operator%= (const BasicString<TSIZE> &other){
 			this->operator %=(other.str());
 			return *this;
 		}
+		
+		/**
+		*	Set one string equal to another in uppercase.
+		*
+		*	@param other The string we're setting this one equal to as uppercase.
+		*	@return A reference to this string.
+		*/
+		BasicString& operator^= (const char *other){
+			this->pNode->removeRef();
+
+			this->pNode = _stringnode<TSIZE>::create(strlen(other));
+			
+			for (uint8_t i = 0; i < this->pNode->length; ++i) {
+				this->pNode->str[i] = toupper(other[i]);
+			}
+
+			return *this;
+		}
 
 		/**
-		*	Set one string equal to another
+		*	Set one string equal to another in uppercase.
 		*
-		*	@param other the string we're setting this one equal to
-		*	@return a reference to this
+		*	@param other The string we're setting this one equal to as uppercase.
+		*	@return A reference to this string.
+		*/
+		BasicString& operator^= (const BasicString<TSIZE> &other){
+			this->operator %=(other.str());
+			return *this;
+		}
+
+		/**
+		*	Set one string equal to another.
+		*
+		*	@param other The string we're setting this one equal to.
+		*	@return A reference to this string.
 		*/
 		BasicString& operator= (const char *other){
 			this->pNode->removeRef();
@@ -173,36 +202,39 @@ namespace atmega{
 
 
 		/**
-		*	Return a substring of the current string
+		*	Return a substring of the current string.
 		*
-		*	@param i the start index
-		*	@param l the number of characters to pull
-		*	@return the stringstring from the start index to i + l index
+		*	@param i The start index.
+		*	@param l The number of characters to pull.
+		*	@return The string from the start index to i + l index.
 		*/
 		BasicString substr(TSIZE i, TSIZE l){
-		
+			// get the length of this string
 			TSIZE size = length();
 
+			// invalid start index
 			if (i >= size){
 				return empty;
 			} 
 
+			// invalid length, set length to rest of string
 			if (i + l > size)
 				l = size - i;
 			
 			if (l == 0)
 				return empty;
 		
+			// get the substring
 			BasicString<TSIZE> ret(this->pNode->str+i,l);
 			return ret;		
 		}
 	
 		
 		/**
-		 *	Check for equality with another string
+		 *	Check for equality with another string.
 		 *
-		 *	@param other the string we're comparing to
-		 *	@return true if the strings are equal, false otherwise
+		 *	@param other The string we're comparing to.
+		 *	@return True if each character in the strings are the same, false otherwise.
 		 */
 		bool operator ==(const BasicString &other){
 			if (this->pNode->length != other.pNode->length)
@@ -211,89 +243,132 @@ namespace atmega{
 		}
 
 		/**
-		 *	Check for equality with a char pointer string
+		 *	Check for equality with a char pointer string.
 		 *
-		 *	@param other the string we're comparing to
-		 *	@return true if the strings are equal, false otherwise
+		 *	@param other The string we're comparing to.
+		 *	@return True if each character in the strings are the same, false otherwise.
 		 */
 		bool operator ==(const char *other){
 			return strcmp(this->pNode->str, other) == 0;
 		}
 
+		/**
+		 * Compares two strings, ignoring case.
+		 *
+		 * @param other The string to compare to.
+		 * @return True if the strings are the same, false otherwise.
+		 */
 		bool operator %(const BasicString &other) {
 			return strcasecmp(this->pNode->str, other.pNode->str) == 0;
 		}
 		
+		/**
+		 * Compares two strings, ignoring case.
+		 *
+		 * @param other The string to compare to.
+		 * @return True if the strings are the same, false otherwise.
+		 */
 		bool operator %(const char *other) {
 			return strcasecmp(this->pNode->str, other) == 0;
 		}
 		
+		/**
+		 * Compares two strings, ignoring case.
+		 *
+		 * @param other The string to compare to.
+		 * @return True if the strings are the same, false otherwise.
+		 */
+		bool operator ^(const BasicString &other) {
+			return this->operator %(other);
+		}
+		
+		/**
+		 * Compares two strings, ignoring case.
+		 *
+		 * @param other The string to compare to.
+		 * @return True if the strings are the same, false otherwise.
+		 */
+		bool operator ^(const char *other) {
+			return this->operator %(other);
+		}
 		
 
 		/**
-		 *	Check if this string is empty
+		 *	Check if this string is empty.
 		 *
-		 *	@return true if the string is empty, false otherwise
+		 *	@return True if the string is empty, false otherwise.
 		 */
 		bool isEmpty(){
 			return length() == 0;
 		}
 
 		/**
-		 *	Append another string onto the end of this one
+		 *	Append another string onto the end of this one.
 		 *
-		 *	@param rhs the string we're appending onto this string
-		 *	@return the new string
+		 *	@param rhs The string we're appending onto this string.
+		 *	@return The new string.
 		 */
 		BasicString operator +(const BasicString &rhs){
 			TSIZE l = length();
 			TSIZE r = rhs.length();
 			TSIZE lr = r + l;
+			
+			// make a new string of the required size
 			_stringnode<TSIZE> *n = _stringnode<TSIZE>::create(lr + 1);
+			
+			// copy the strings over
 			memcpy(n->str,this->pNode->str,l);
 			memcpy(n->str + l, rhs.pNode->str,r);
-
+			
+			// append null terminator
 			n->str[lr] = '\0';
+			
+			// basically a cast
 			BasicString ret(n);
 			return ret;
 		}
 
 		/**
-		 *	Append another string onto the end of this one
+		 *	Append another string onto the end of this one.
 		 *
-		 *	@param rhs the string we're appending onto this string
-		 *	@return the new string
+		 *	@param rhs The string we're appending onto this string.
+		 *	@return The new string.
 		 */
 		BasicString operator +(const char* rhs){
 			TSIZE l = length(), r = strlen(rhs), lr = r + l;
+			
+			// create a new string of the required size
 			_stringnode<TSIZE> *n = _stringnode<TSIZE>::create(lr + 1);
+			
+			// copy the strings over, append null terminator
 			memcpy(n->str,this->pNode->str,l);
 			memcpy(n->str + l, rhs,r);
 			this->Node->str[lr] = '\0';
+			
+			// cast and return
 			BasicString ret(&(*n));
 			return ret;
 		}
 
+		/**
+		 * Empty string.
+		 *
+		 */
 		static BasicString empty;
 
 	private:
+		/**
+		 * Node pointer.
+		 *
+		 */
 		_stringnode<TSIZE> *pNode;
 	};	//end class string
 	
+	/**
+	 * Default the size of the string to 8 bits.
+	 *
+	 */
 	typedef BasicString<uint8_t> string;
 	
-	
-	class _ToString{
-		public:
-		string (*__classToString)();
-		
-		_ToString(string (*toString)()){
-			this->__classToString = toString;
-		}		
-				
-	};
-
-	
-
 }
 
