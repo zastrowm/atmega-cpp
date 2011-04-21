@@ -7,7 +7,6 @@
 #define MYDEBUG
 
 #include <stdio.h>
-#include <avr/interrupt.h>
 #include "stdlib/inc.h"
 #include "stdlib/string.h"
 #include "stdlib/StaticMap.h"
@@ -17,6 +16,7 @@
 #include "atmega/serial.h"
 #include "atmega/twi.h"
 #include "atmega/ImageInfo.h"
+#include "atmega/Interrupts.h"
 #include "atmega/util.h"
 
 USING_CPP();
@@ -24,38 +24,20 @@ USING_ATMEGA();
 
 using namespace atmega;
 
-volatile uint8_t globalBuf = 'a';
-
-ISR(INT1_vect) {
-	cli();
-	globalBuf++;
-	serial << "Int1_vect called!" << endl;
-
-	sei();
-}
-
-ISR(INT0_vect) {
-	cli();
-	globalBuf += 2;
-	serial << "Int0_vect called!" << endl;
-	sei();
-}
-
-ISR(INT2_vect) {
-	cli();
-	globalBuf += 10;
-	serial << "Int2_vect called!" << endl;
-
-	sei();
-}
 
 void printHelp(Serial &serial);
-bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
+
+void test() {
+	asm("nop");
+	//serial << "Interrupt 0 called!" << endl;
+}
+
 
 static const uint8_t CAM_ADDRESS = 0xC0;
 
 int main(){
-	cli();
+	Interrupts::activate(true);
+	Interrupts::interrupt2Handler = test;
 	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
 	string request,cmd;

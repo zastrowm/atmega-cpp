@@ -9,6 +9,9 @@
 #ifndef INTERRUPTS_H_
 #define INTERRUPTS_H_
 
+#define INT0_RISING_EDGE ((1 << ISC01) | (1 << ISC00))
+#define INT1_RISING_EDGE ((1 << ISC11) | (1 << ISC10))
+
 typedef void (*funcPointerInterrupt)();
 
 struct Interrupts {
