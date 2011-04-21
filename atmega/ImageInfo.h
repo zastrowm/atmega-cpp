@@ -18,11 +18,14 @@ namespace atmega{
 class ImageInfo{
 
 	public:
+		
 		// The edges of the white shape
 		uint8_t minY, minX, maxY, maxX;
 		
 		// The current pixel location
 		uint8_t x,y;
+		
+		uint8_t tempMaxX;
 		
 		// The value of the current pixel
 		uint8_t value;
@@ -34,6 +37,7 @@ class ImageInfo{
 		 */
 		ImageInfo(){
 			reset();
+			tempMaxX = 0;
 		}
 
 		/**
@@ -60,8 +64,8 @@ class ImageInfo{
 		 *	Reset the current point, and the mins & maxs
 		 */
 		void reset(){
-			minX = 255;
-			minY = 255;
+			minX = 176;
+			minY = 144;
 			maxX = 0;
 			maxY = 0;
 			x = 0;
@@ -75,7 +79,7 @@ class ImageInfo{
 		 *	@param value The value of the pixel.
 		 */
 		bool isWhite(uint8_t value){
-			return value > 0x88;
+			return value > 0x45;
 		}
 
 		/**
@@ -95,11 +99,11 @@ class ImageInfo{
 		 */
 		void nextRow(){
 			y++;
+			if(x > tempMaxX)
+				tempMaxX = x;
 			x = 0;
 			
-			if (y == 144){
-				doneComputing = true;
-			}
+			
 		}
 
 	};
