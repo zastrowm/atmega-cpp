@@ -11,14 +11,23 @@ namespace atmega{
 	struct _commit{};
 }
 
+
+#define _DEFINE_GLOBALS_	namespace atmega{StringBuffer<128> gBuffer;};
+
+
+
 #define USING_CPP() template <typename TSIZE> atmega::_stringnode<TSIZE> atmega::_stringnode<TSIZE>::nullnode;	\
 					template <typename TSIZE> atmega::BasicString<TSIZE> atmega::BasicString<TSIZE>::empty;		\
 					void * operator new(size_t size) {return malloc(size);}										\
 					void operator delete(void * ptr) { free(ptr); } 											\
 					namespace atmega{_endl endl;}																\
-					namespace atmega{_tab tab;}																\
+					namespace atmega{_tab tab;}																	\
 					namespace atmega{_commit commit;}															\
+					_DEFINE_GLOBALS_
 					//uint8_t TwoWireInterface::error = false;						
+
+
+
 
 namespace atmega{
 	extern _endl endl;

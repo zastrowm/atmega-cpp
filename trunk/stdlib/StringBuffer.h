@@ -10,7 +10,7 @@
 namespace atmega{
 
 	template<uint8_t SIZE = 128>
-	class StringBuffer : public StringWriter<StringBuffer<SIZE> >{
+	class StringBuffer{
 
 		char buffer[SIZE];
 		uint8_t writeIndex;
@@ -132,6 +132,9 @@ namespace atmega{
 			this->writeIndex = strlen(buffer);
 		}
 	};
+
+
+	extern StringBuffer<128> gBuffer;
 
 
 };

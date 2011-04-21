@@ -24,7 +24,7 @@ namespace atmega{
 	 * use to use simpler serial functions.
 	 * 
 	 */
-	class Serial : public StringWriter<Serial>{
+	class Serial{
 		
 		// Stores the previously entered command
 		string lastCommand;
@@ -100,7 +100,7 @@ namespace atmega{
 		 */
 		string getString(){
 			// temp variables used during the read
-			StringBuffer<128> buffer;
+			
 			char letter;
 			
 			do{
@@ -113,12 +113,12 @@ namespace atmega{
 					if (letter == '['){
 						letter = getChar();
 						if (letter == 'A'){
-							while (buffer.length() > 0){
-								buffer.back();
+							while (gBuffer.length() > 0){
+								gBuffer.back();
 								put((char)127);
 							}
-							buffer.clear();
-							buffer.put(lastCommand);
+							gBuffer.clear();
+							gBuffer.put(lastCommand);
 							put(lastCommand);	
 						}	
 						
@@ -140,19 +140,24 @@ namespace atmega{
 				} else if (letter == 127){
 					// backspace key, delete last character
 					put((char)127);
-					buffer.back();
+					gBuffer.back();
 					//nop			
 				} else {
 					// echo character back out
 					put(letter);
-					buffer.put(letter);
+					gBuffer.put(letter);
 				}					
 			} while (true);
 			
 			// store the last command entered for reuse later
-			lastCommand = buffer.toString();
+			lastCommand = gBuffer.toString();
 			return lastCommand;
 		}
+
+		
+		INHERIT_STREAM(Serial)
+		
+		
 	};
 };
 
