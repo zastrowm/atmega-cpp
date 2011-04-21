@@ -15,14 +15,12 @@
 #include "atmega/servo.h"
 #include "atmega/serial.h"
 #include "atmega/twi.h"
+#include "atmega/ImageInfo.h"
 
 USING_CPP();
 USING_ATMEGA();
 
 using namespace atmega;
-
-
-
 
 uint8_t readIO(uint8_t port){
 	return *((volatile uint8_t*)(port + 0x20));
@@ -121,7 +119,7 @@ int main(){
  *	@param serial the serial to output to
  */
 void printHelp(Serial &serial){
-	serial	<<"Availabile Commands:"<<endl
+	serial	<<"Available Commands:"<<endl
 			<<tab<<"tilt <num>              : tilt the servo to a designated location"<<endl
 			<<tab<<"pan <num>               : pan the servo to a designated location"<<endl
 			<<tab<<"reset                   : reset the servo to it's default position"<<endl
