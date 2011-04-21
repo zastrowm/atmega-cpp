@@ -20,15 +20,13 @@ class ImageInfo{
 	public:
 		
 		// The edges of the white shape
-		uint8_t minY, minX, maxY, maxX;
+		volatile uint8_t minY, minX, maxY, maxX;
 		
 		// The current pixel location
-		uint8_t x,y;
-		
-		uint8_t tempMaxX;
+		volatile uint8_t x, y;
 		
 		// The value of the current pixel
-		uint8_t value;
+		volatile uint8_t value;
 		volatile uint8_t doneComputing;
 
 		/**
@@ -37,7 +35,6 @@ class ImageInfo{
 		 */
 		ImageInfo(){
 			reset();
-			tempMaxX = 0;
 		}
 
 		/**
@@ -99,17 +96,7 @@ class ImageInfo{
 		 */
 		void nextRow(){
 			y++;
-			if(x > tempMaxX)
-				tempMaxX = x;
 			x = 0;
-			
-			
 		}
-
 	};
-
-
-
-
-
 }
