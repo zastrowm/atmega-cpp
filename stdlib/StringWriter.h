@@ -22,13 +22,18 @@ namespace atmega{
 	class StringWriter{
 
 	public:
+	
+		/**
+		 * Constructor for a new string writer.
+		 *
+		 */
 		StringWriter(){}
 
 		/**
-		 *	Write a single letter
+		 *	Write a single letter.
 		 *	
-		 *	@param let the letter to write
-		 *	@return itself to allow for more StringWriting
+		 *	@param let The letter to write
+		 *	@return The string writer to allow additional method calls.
 		 */
 		StringWriter& operator<<(char let){
 			((TYPE*)(this))->put(let);
@@ -36,7 +41,7 @@ namespace atmega{
 		}
 		
 		/**
-		 *	Write a string literal
+		 *	Write a string literal.
 		 *	
 		 *	@param str the string literal to write
 		 *	@return itself to allow for more StringWriting
