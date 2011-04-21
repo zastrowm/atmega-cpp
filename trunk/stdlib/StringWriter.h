@@ -14,8 +14,5 @@
 								T_TYPE& operator<<(char *str){put(str);return *this;}												\
 								T_TYPE& operator<<(_endl ed){put('\r');put('\n');return *this;}										\
 								T_TYPE& operator<<(_tab ed){put('\t');return *this;}												\
-								T_TYPE& operator<<(StringBuffer<128> sb){string t; t = sb.toString();put(t);return *this;}			\
-								T_TYPE& putHex(uint8_t value){char buf[16]; sprintf(buf,"0x%x",value); put(buf) ;return *this;};	\
-								T_TYPE& putNum(uint8_t value){char buf[16]; sprintf(buf,"%d",value); put(buf) ;return *this;};		\
-								T_TYPE& putNum(uint16_t value){char buf[16]; sprintf(buf,"%d",value); put(buf) ;return *this;};
+								T_TYPE& operator<<(StringBuffer<128> sb){string t; t = sb.toString();put(t);return *this;}
 									
