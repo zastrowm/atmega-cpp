@@ -51,103 +51,106 @@ static atmega::Serial serial;
 #define DEBUGSTR
 #endif
 
-
-class TwoWireInterface {
-	private:
-		static uint8_t action(uint8_t command) {
-			TWCR = command | (1 << TWINT) | (1 << TWEN);
-			
-			// wait for interrupt
-			while (!(TWCR & (1 << TWINT)));
-			
-			return TW_STATUS;
-		}
-
-		static bool setLocation(uint8_t address, uint8_t reg) {
-
-			
-			return true;
-		}
+namespace atmega{
 	
-	public:
-		static uint8_t error;
-
-		static void init() {
-			error = false;
-			// Set up the TWBR register, for ease we set the prescalar to 0
-			// TWISPEED = CPU/(16 + 2 * TWBR * 4 ^(prescalar))
-			// TWBR = (CPU/100000 - 16)/2 = 72
-			TWBR = 72;
-		}
-		
-	
-		#define uartPuts(str) DEBUGSTR(str)
-		#define ASSERT(cond, code, error) if (!(cond)){ DEBUGSTR(error); return code;};
-		static void Error(void) {
-			DEBUGSTR("Error.");
-			// stop
-			TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-		}
-		
-		static void stop() {
-			TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-		}
-		
-		
-		static uint8_t read(uint8_t address, uint8_t regNumber) {
-				// send start command
-		
-			ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
+	class TwoWireInterface {
+		private:
+			static uint8_t action(uint8_t command) {
+				TWCR = command | (1 << TWINT) | (1 << TWEN);
 			
-			// send slave write address
-			TWDR = 0xC0;
+				// wait for interrupt
+				while (!(TWCR & (1 << TWINT)));
+			
+				return TW_STATUS;
+			}
+
+			static bool setLocation(uint8_t address, uint8_t reg) {
+
+			
+				return true;
+			}
 	
-			ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
+		public:
+			static uint8_t error;
+
+			static void init() {
+				error = false;
+				// Set up the TWBR register, for ease we set the prescalar to 0
+				// TWISPEED = CPU/(16 + 2 * TWBR * 4 ^(prescalar))
+				// TWBR = (CPU/100000 - 16)/2 = 72
+				TWBR = 72;
+			}
+		
 	
-			// send word address
-			TWDR = regNumber;
-			ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack");
+			#define uartPuts(str) DEBUGSTR(str)
+			#define ASSERT(cond, code, error) if (!(cond)){ DEBUGSTR(error); return code;};
+			static void Error(void) {
+				DEBUGSTR("Error.");
+				// stop
+				TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+			}
+		
+			static void stop() {
+				TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+			}
+		
+		
+			static uint8_t read(uint8_t address, uint8_t regNumber) {
+					// send start command
+		
+				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
+			
+				// send slave write address
+				TWDR = 0xC0;
+	
+				ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
+	
+				// send word address
+				TWDR = regNumber;
+				ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack");
 	
 				
-			// delay, send repeated start
-			TWCR = 0;
-			stop();
-			_delay_ms(100);
-			ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed restart");
+				// delay, send repeated start
+				TWCR = 0;
+				stop();
+				_delay_ms(100);
+				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed restart");
 	
-			// send slave read
-			TWDR = 0xC1;
-			ASSERT(action(0) == TW_MR_SLA_ACK, TW_STATUS, "Failed address 2");
+				// send slave read
+				TWDR = 0xC1;
+				ASSERT(action(0) == TW_MR_SLA_ACK, TW_STATUS, "Failed address 2");
 
-			ASSERT(action(0) == TW_MR_DATA_NACK, TW_STATUS, "Failed data nack");
+				ASSERT(action(0) == TW_MR_DATA_NACK, TW_STATUS, "Failed data nack");
 
-			stop();
-			// return the data from the device's register
-			return TWDR;			
-		}
+				stop();
+				// return the data from the device's register
+				return TWDR;			
+			}
 		
-		static uint8_t write(uint8_t address, uint8_t reg, uint8_t data) {
-			error = true;
-			ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
+			static uint8_t write(uint8_t address, uint8_t reg, uint8_t data) {
+				error = true;
+				ASSERT(action(1 << TWSTA) == TW_START, TW_STATUS, "Failed Start");
 			
-			// send slave write address
-			TWDR = 0xC0;
+				// send slave write address
+				TWDR = 0xC0;
 	
-			ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
+				ASSERT(action(0) == TW_MT_SLA_ACK,  TW_STATUS, "Failed Address 1");
 	
-			// send word address
-			TWDR = reg;
-			ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack");
+				// send word address
+				TWDR = reg;
+				ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack");
 			
-			// send data
-			TWDR = data;
-			ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack 2");
+				// send data
+				TWDR = data;
+				ASSERT(action(0) == TW_MT_DATA_ACK, TW_STATUS, "Failed data ack 2");
 
-			stop();
-			error = false;
+				stop();
+				error = false;
 
-			return TW_STATUS;
-		}
-};
+				return TW_STATUS;
+			}
+	};
+}
+
 
 #endif
