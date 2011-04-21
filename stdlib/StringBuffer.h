@@ -131,6 +131,9 @@ namespace atmega{
 		void recalculateIndex(){
 			this->writeIndex = strlen(buffer);
 		}
+		
+		//add the operators
+		
 	};
 
 

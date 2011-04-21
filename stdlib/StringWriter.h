@@ -5,8 +5,6 @@
 #include "string.h"
 #include "StringBuffer.h"
 
-namespace atmega{
-	
 /**
  *	Allow objects to use << for sending strings/characters to the object.  Put() must be defined for
  *		characters, strings, and literal strings
@@ -17,3 +15,4 @@ namespace atmega{
 								T_TYPE& operator<<(_endl ed){put('\r');put('\n');return *this;}	\
 								T_TYPE& operator<<(_tab ed){put('\t');return *this;}			\
 								T_TYPE& operator<<(StringBuffer<128> sb){string t; t = sb.toString();put(t);return *this;}
+									

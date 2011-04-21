@@ -53,7 +53,7 @@ extern "C" {
 
 #ifdef MYDEBUG
 static atmega::Serial serial;
-#define DEBUGSTR(str) serial << ":" << str << atmega::endl;
+#define DEBUGSTR(str) serial << ":" << str << endl;
 #else
 #define DEBUGSTR
 #endif
