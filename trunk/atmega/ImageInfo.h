@@ -24,7 +24,6 @@ class ImageInfo{
 		
 		// The current pixel location
 		uint8_t x,y;
-		
 		uint8_t tempMaxX;
 		
 		// The value of the current pixel
