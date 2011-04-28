@@ -55,13 +55,13 @@ void HREF_Handler(){
 
 int main(){
 	// enable interrupts
-	Interrupts::activate(true);
+	//Interrupts::activate(true);
 	
 	// setup external interrupts
 	Interrupts::interrupt0Handler = &PCLK_Handler;
 	Interrupts::interrupt1Handler = &HREF_Handler;
-	Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
-	Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
+	//Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
+	//Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
 
 	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
@@ -81,60 +81,43 @@ int main(){
 	
 	//set res to 176 x 144
 	TwoWireInterface::write(0xc0, 0x14, 0x20);
-	delay(1);
 
 	// pclk valid only when href high--------cjk this is what makes us freeze and need to reset!!
 	//TwoWireInterface::write(0xc0, 0x39, 0x40);
 //	delay(1);
 	
+	//SET DDRD
+	DDRD &= 0b10110011;
+	PORTD &= ~0b10110011;
+	
+	
 
-
-	// check to make sure were ticking before going into the main loop
-	while (true) {
-		uint32_t n;
-		n = pclkCount;
-		serial << "pclk ticks: "<< num(n) << endl;
-		n = hrefCount;
-		serial << "href ticks: " << num(n) << endl;
-		request = serial.getString();
-		// if we aren't ticking user can give the camera a KICK IN THE ASS
-		if (request % "cr") {
-			// soft reset command...sadly no hard reset command even though the camera deserves it
-			TwoWireInterface::write(0xc0, 0x12, 0x80);
-			delay(1);
-		// if all is well we get to go on
-		} else if (request % "go") {
-			break;
-		}		
-	}
-
-	char output[64];
-	output[0] = '\0';
-	string buf;
+	serial<<"Enter Loop"<<endl;
+	
+	uint8_t max = 0;
+	
 	while (true){
-		while(!image.doneComputing);
-		sprintf(output, "Max X: %03u, Max Y: %03u\r\n"
-						"Min X: %03u, Min Y: %03u\r\n"
-						"    X: %03u,     Y: %03u\r\n",
-						image.maxX, image.maxY,
-						image.minX, image.minY,
-						image.x, image.y);
-		buf = output;
-		serial << buf << endl; 
-		image.reset();
-
-	/*
-		count = sscanf(request.str(),"%s %x %x",buffer.str(),&arg1, &arg2);
-		buffer.recalculateIndex();
-		cmd = buffer.toString();
 		
-		if (!handleCommand(cmd,count,arg1,arg2)){
-			buffer.sprintf("Unrecognized Command: %s",request.str());
-			serial<<buffer.str()<<endl;
-			printHelp(serial);	
+		//while VSYNC isn't high
+		while (!(PIND & (1 << PIND6)));
+		
+		//while HREF isn't high
+		while (!(PIND & (1 << PIND3)));
+		uint8_t count = 0;
+		while ((PIND & (1 << PIND3))){	//while HREF is high
+			while (!(PIND & (1 << PIND2)));	//while !PCLK
+			
+			count++;
+			
+			if (PINA > 0x80)
+				max = count;
+		
 		}
-		*/
+		
+		serial<<"Max:"<<hex(max)<<endl;
+		max = 0;
 	}
+	
 	return 0;
 }
 
