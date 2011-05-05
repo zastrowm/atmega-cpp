@@ -36,6 +36,18 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
 
 static const uint8_t CAM_ADDRESS = 0xC0;
 
+uint8_t CalcNewValue(uint8_t old, uint8_t newb){
+	
+	if (old > newb){	//the old value was bigger
+		return old - ((old - newb) >> 2);
+	} else {	//the old value was smaller
+		return old + ((newb - old) >> 2);
+		
+		
+	}
+	
+}
+
 int main(){
 	// enable interrupts
 	//Interrupts::activate(true);
@@ -103,11 +115,19 @@ int main(){
 		uint8_t x,y;
 		tracker.findMiddle(x,y);
 		tracker.clear();
-		serial<<"Mid:"<<num(x)<<" y:"<<num(y)<<endl;
 		
 		
-		servo::setTilt(tracker.MAX_Y - y);
-		servo::setPan(tracker.MAX_X - x);
+		y = tracker.MAX_Y - y;
+		x = tracker.MAX_X - x;
+		
+		
+		uint8_t newTilt = CalcNewValue(servo::tiltValue,y);
+		uint8_t newPan = CalcNewValue(servo::panValue,x);
+		
+		serial<<"x:"<<num(x)<<" y:"<<num(y)<<" pan:"<<num(newPan)<<" tilt:"<<num(newTilt)<<endl;
+		
+		servo::setTilt(newTilt);
+		servo::setPan(newPan);
 		//serial<<"Max:"<<num(maxX)<<" y:"<<num(maxY)<<endl;
 	}
 	
