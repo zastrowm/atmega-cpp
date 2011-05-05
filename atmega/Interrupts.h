@@ -19,6 +19,11 @@
 #define INT1_FALLING_EDGE   ((1 << ISC11) | (0 << ISC10))
 #define INT1_RISING_EDGE    ((1 << ISC11) | (1 << ISC10))
 
+/* NO LOW LEVEL TRIGGER INT2 */
+/* NO LOGICAL CHANGE TRIGGER FOR INT2 */
+#define INT2_FALLING_EDGE   (0 << ISC2)
+#define INT2_RISING_EDGE    (1 << ISC2)
+
 typedef void (*funcPointerInterrupt)();
 
 struct Interrupts {
