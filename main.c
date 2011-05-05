@@ -121,18 +121,17 @@ int main(){
 		static uint8_t halfX = tracker.MAX_X >> 1;
 		static uint8_t halfY = tracker.MAX_Y >> 1;
 		
-		if (x > halfX){
-			servo::setPan(servo::panValue + 2);
-		} else if ( x < halfX){
-			servo::setPan(servo::panValue - 2);
+		if (x > halfX + 1){
+			servo::setPan(servo::panValue + 3);
+		} else if ( x < halfX - 1){
+			servo::setPan(servo::panValue - 3);
 		}
 		
-		if ( y > halfY ){
-			servo::setTilt(servo::tiltValue + 2);
-		} else if (y < halfY){
-			servo::setTilt(servo::tiltValue - 2);
+		if ( y > halfY + 1 ){
+			servo::setTilt(servo::tiltValue + 3);
+		} else if (y < halfY - 1){
+			servo::setTilt(servo::tiltValue - 3);
 		}
-		
 		
 		serial<<"x:"<<num(x)<<" y:"<<num(y)<<endl;
 		
