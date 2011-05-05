@@ -59,7 +59,7 @@ namespace atmega{
 			 */
 			void next(uint8_t data, uint8_t x, uint8_t y){
 				// 0x88 is about the half way point between black and white
-				if (data < 0x88){
+				if (data > 0x88){
 					xs[x] = true;
 					ys[y] = true;
 				}
