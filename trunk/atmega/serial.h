@@ -24,7 +24,9 @@ namespace atmega{
 	 * use to use simpler serial functions.
 	 * 
 	 */
-	class Serial{
+	class Serial {
+		// only want one instance to talk to the serial
+		static bool initialized;
 		
 		// Stores the previously entered command
 		string lastCommand;
@@ -37,12 +39,37 @@ namespace atmega{
 		 *
 		 * @param val The UBRRL value to use.
 		 */
-		Serial(uint8_t val = UBRR_VAL){
-			//set the rate to what it needs to be
-			UBRRL = val;
-			UBRRH = 0;
-			//enable read/write
-			UCSRB = (1<<TXEN)|(1<<RXEN);
+		Serial(uint32_t baudRate) {
+			if (!initialized) {
+				initialized = true;
+				// force our baud rate calculation to be 32 bits
+				uint32_t ubrr_setting;
+				uint32_t fosc = FOSC;
+				// define what kind of rounding precision we'll have
+				uint32_t scale = 10;
+				bool roundDown;
+
+				// scale up so we can round later with modulo
+				fosc *= scale;
+
+				// baud rate calculation per data sheet
+				// a minor optimization here we leave off the minus one
+				// and only subtract if we rounded down
+				ubrr_setting = fosc / (16 * baudRate);
+
+				// since we scaled up earlier we can now check if we should round here
+				roundDown = (ubrr_setting % scale) < (scale / 2);
+				// scale back to normal
+				ubrr_setting /= scale;
+				if (roundDown) {
+					--ubrr_setting;
+				}
+				//set the rate to what it needs to be
+				UBRRL = ubrr_setting & 0xFF;
+				UBRRH = (ubrr_setting >> 8) & 0xFF;
+				//enable read/write
+				UCSRB = (1<<TXEN)|(1<<RXEN);
+			}			
 		}
 
 		/**
