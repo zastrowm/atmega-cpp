@@ -88,35 +88,46 @@ int main(){
 	
 	//SET DDRD
 	DDRD &= 0b10110011;
-	PORTD &= ~0b10110011;
-	
-	
+	PORTD &= ~0b10110011;	
 
 	serial<<"Enter Loop"<<endl;
 	
-	uint8_t max = 0;
 	
 	while (true){
 		
-		//while VSYNC isn't high
+		uint8_t maxX = 0;
+		uint8_t maxY = 0;
+		
+		//while VSYNC isn't high, spin
 		while (!(PIND & (1 << PIND6)));
 		
-		//while HREF isn't high
-		while (!(PIND & (1 << PIND3)));
-		uint8_t count = 0;
-		while ((PIND & (1 << PIND3))){	//while HREF is high
-			while (!(PIND & (1 << PIND2)));	//while !PCLK
+		for (uint8_t y = 0; y < 144; ++y){
+			//wait for HREF TO GO HIGH
+			while (!(PIND & (1 << PIND3)));
 			
-			count++;
+			for (uint8_t x = 0; x < 176; ++x){
+				//wait for PCLK to go high 
+				while (!(PIND & (1 << PIND2)));
+				
+				
+				if (PINA > 0x80 && y > maxY){
+					maxY = y;
+				}	
+				
+				if (PINA > 0x80 && x > maxX){
+					maxX = x;
+				}
+								
+			}
 			
-			if (PINA > 0x80)
-				max = count;
-		
+			
 		}
+		//while HREF isn't high, wait
 		
-		serial<<"Max:"<<hex(max)<<endl;
-		max = 0;
+		serial<<"Max:"<<num(maxX)<<" y:"<<num(maxY)<<endl;
 	}
+	
+	
 	
 	return 0;
 }
