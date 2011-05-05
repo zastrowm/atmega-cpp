@@ -9,8 +9,15 @@
 #ifndef INTERRUPTS_H_
 #define INTERRUPTS_H_
 
-#define INT0_RISING_EDGE ((1 << ISC01) | (1 << ISC00))
-#define INT1_RISING_EDGE ((1 << ISC11) | (1 << ISC10))
+#define INT0_LOW_LEVEL      ((0 << ISC01) | (0 << ISC00))
+#define INT0_LOGICAL_CHANGE ((0 << ISC01) | (1 << ISC00))
+#define INT0_FALLING_EDGE   ((1 << ISC01) | (0 << ISC00))
+#define INT0_RISING_EDGE    ((1 << ISC01) | (1 << ISC00))
+
+#define INT1_LOW_LEVEL      ((0 << ISC11) | (0 << ISC10))
+#define INT1_LOGICAL_CHANGE ((0 << ISC11) | (1 << ISC10))
+#define INT1_FALLING_EDGE   ((1 << ISC11) | (0 << ISC10))
+#define INT1_RISING_EDGE    ((1 << ISC11) | (1 << ISC10))
 
 typedef void (*funcPointerInterrupt)();
 
