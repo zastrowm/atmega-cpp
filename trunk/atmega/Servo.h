@@ -14,9 +14,11 @@
 namespace atmega{
 	
 	class servo{
-		static uint16_t panValue, tiltValue;
+		
 	
 	public:
+		static uint16_t _panValue, _tiltValue;
+		static uint16_t panValue, tiltValue;
 		
 		static const uint16_t panMin = 500;
 		static const uint16_t panMid = 1500;
@@ -46,6 +48,9 @@ namespace atmega{
 		 *	Reset the servo to the default position
 		 */
 		static void reset(){
+			panValue = 176 >> 1;
+			tiltValue = 144 >> 1;
+			
 			_setPan(panMid);
 			_setTilt(tiltMid);
 		}
@@ -56,7 +61,7 @@ namespace atmega{
 		 *	@param move the panning motor to an relative position
 		 */
 		static void pan(int16_t value){
-			setPan(panValue + value);	
+			setPan(_panValue + value);	
 		}
 		
 		/**
@@ -65,7 +70,7 @@ namespace atmega{
 		 *	@param move the panning motor to a relative position
 		 */
 		static void tilt(int16_t value){
-			setTilt(tiltValue + value);	
+			setTilt(_tiltValue + value);	
 		}		
 		
 		/**
@@ -74,8 +79,8 @@ namespace atmega{
 		 *	@param move the panning motor to an absolute position
 		 */
 		static void setPan(uint16_t value){
+			panValue = value;
 			value = mapPan(value);
-			
 			_setPan(value);
 		}
 
@@ -86,8 +91,8 @@ namespace atmega{
 		 *	@param move the tilting motor to an absolute position
 		 */
 		static void setTilt(uint16_t value){
+			tiltValue = value;
 			value = mapTilt(value);
-			
 			_setTilt(value);
 		}
 		
@@ -105,7 +110,7 @@ namespace atmega{
 				value = panMax;
 			
 			OCR1A = value;			
-			panValue = value;
+			_panValue = value;
 		}
 		
 		/**
@@ -120,7 +125,7 @@ namespace atmega{
 				value = tiltMax;			
 			
 			OCR1B = value;
-			tiltValue = value;
+			_tiltValue = value;
 		}
 	
 		/**
