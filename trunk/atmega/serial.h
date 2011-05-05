@@ -13,10 +13,6 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
-#define F_CPU 16e6
-#define BAUD 96e2
-#define UBRR_VAL F_CPU/(BAUD*16)-1
-
 namespace atmega{
 	
 	/**
@@ -39,12 +35,12 @@ namespace atmega{
 		 *
 		 * @param val The UBRRL value to use.
 		 */
-		Serial(uint32_t baudRate) {
+		Serial(uint32_t baudRate = 1e6) {
 			if (!initialized) {
 				initialized = true;
 				// force our baud rate calculation to be 32 bits
 				uint32_t ubrr_setting;
-				uint32_t fosc = FOSC;
+				uint32_t fosc = F_CPU;
 				// define what kind of rounding precision we'll have
 				uint32_t scale = 10;
 				bool roundDown;
