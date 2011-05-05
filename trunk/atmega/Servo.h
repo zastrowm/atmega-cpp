@@ -53,7 +53,7 @@ namespace atmega{
 		/**
 		 *	Pan the motor
 		 *
-		 *	@param move the panning motor to an absolute position
+		 *	@param move the panning motor to an relative position
 		 */
 		static void pan(int16_t value){
 			setPan(panValue + value);	
@@ -62,7 +62,7 @@ namespace atmega{
 		/**
 		 *	Pan the motor
 		 *
-		 *	@param move the panning motor to an absolute position
+		 *	@param move the panning motor to a relative position
 		 */
 		static void tilt(int16_t value){
 			setTilt(tiltValue + value);	

@@ -19,6 +19,7 @@
 #include "atmega/ImageInfo.h"
 #include "atmega/util.h"
 #include "atmega/Interrupts.h"
+#include "atmega/SpotTracker.h"
 
 USING_CPP();
 USING_ATMEGA();
@@ -35,35 +36,9 @@ bool handleCommand(string cmd, uint8_t count, uint8_t arg1, uint8_t arg2);
 
 static const uint8_t CAM_ADDRESS = 0xC0;
 
-void PCLK_Handler(){
-	//cli();
-	++pclkCount;
-	//uint8_t pix = PINA;
-	image.nexPixel(PINA);
-	//sei();
-}
-
-void HREF_Handler(){
-	//cli();
-	++hrefCount;
-	image.nextRow();
-	if (PIND & 0x08) {
-		image.doneComputing = true;
-	}
-	//sei();
-}
-
 int main(){
 	// enable interrupts
 	//Interrupts::activate(true);
-	
-	// setup external interrupts
-	Interrupts::interrupt0Handler = &PCLK_Handler;
-	Interrupts::interrupt1Handler = &HREF_Handler;
-	//Interrupts::enable(Interrupts::Interrupt_0, (1 << ISC00 | 1 << ISC01));
-	//Interrupts::enable(Interrupts::Interrupt_1, (1 << ISC10 | 1 << ISC11));
-
-	int16_t arg1,arg2,count ;
 	StringBuffer<128> buffer;
 	string request, cmd;
 	
@@ -92,6 +67,7 @@ int main(){
 
 	serial<<"Enter Loop"<<endl;
 	
+	SpotTracker tracker;
 	
 	while (true){
 		
@@ -109,6 +85,7 @@ int main(){
 				//wait for PCLK to go high 
 				while (!(PIND & (1 << PIND2)));
 				
+				tracker.next(PINA,x,y);
 				
 				if (PINA > 0x80 && y > maxY){
 					maxY = y;
@@ -123,8 +100,15 @@ int main(){
 			
 		}
 		//while HREF isn't high, wait
+		uint8_t x,y;
+		tracker.findMiddle(x,y);
+		tracker.clear();
+		serial<<"Mid:"<<num(x)<<" y:"<<num(y)<<endl;
 		
-		serial<<"Max:"<<num(maxX)<<" y:"<<num(maxY)<<endl;
+		
+		servo::setTilt(tracker.MAX_Y - y);
+		servo::setPan(tracker.MAX_X - x);
+		//serial<<"Max:"<<num(maxX)<<" y:"<<num(maxY)<<endl;
 	}
 	
 	
