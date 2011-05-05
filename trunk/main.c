@@ -115,17 +115,26 @@ int main(){
 		uint8_t x,y;
 		tracker.findMiddle(x,y);
 		tracker.clear();
-		
-		
-		y = y;
-		x =  x;
-		
+
+		//reverse x
 		x = tracker.MAX_X - x;
+		static uint8_t halfX = tracker.MAX_X >> 1;
+		static uint8_t halfY = tracker.MAX_Y >> 1;
 		
-		uint8_t newTilt = CalcNewValue(servo::tiltValue,y);
-		uint8_t newPan = CalcNewValue(servo::panValue,x);
+		if (x > halfX){
+			servo::setPan(servo::panValue + 2);
+		} else if ( x < halfX){
+			servo::setPan(servo::panValue - 2);
+		}
 		
-		serial<<"x:"<<num(x)<<" y:"<<num(y)<<" pan:"<<num(newPan)<<" tilt:"<<num(newTilt)<<endl;
+		if ( y > halfY ){
+			servo::setTilt(servo::tiltValue + 2);
+		} else if (y < halfY){
+			servo::setTilt(servo::tiltValue - 2);
+		}
+		
+		
+		serial<<"x:"<<num(x)<<" y:"<<num(y)<<endl;
 		
 		//servo::setTilt(newTilt);
 		//servo::setPan(newPan);
