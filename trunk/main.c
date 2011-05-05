@@ -39,9 +39,9 @@ static const uint8_t CAM_ADDRESS = 0xC0;
 uint8_t CalcNewValue(uint8_t old, uint8_t newb){
 	
 	if (old > newb){	//the old value was bigger
-		return old - ((old - newb) >> 2);
+		return old - ((old - newb) >> 1);
 	} else {	//the old value was smaller
-		return old + ((newb - old) >> 2);
+		return old + ((newb - old) >> 1);
 		
 		
 	}
@@ -117,17 +117,18 @@ int main(){
 		tracker.clear();
 		
 		
-		y = tracker.MAX_Y - y;
-		x = tracker.MAX_X - x;
+		y = y;
+		x =  x;
 		
+		x = tracker.MAX_X - x;
 		
 		uint8_t newTilt = CalcNewValue(servo::tiltValue,y);
 		uint8_t newPan = CalcNewValue(servo::panValue,x);
 		
 		serial<<"x:"<<num(x)<<" y:"<<num(y)<<" pan:"<<num(newPan)<<" tilt:"<<num(newTilt)<<endl;
 		
-		servo::setTilt(newTilt);
-		servo::setPan(newPan);
+		//servo::setTilt(newTilt);
+		//servo::setPan(newPan);
 		//serial<<"Max:"<<num(maxX)<<" y:"<<num(maxY)<<endl;
 	}
 	
